@@ -27,12 +27,6 @@ O compilador está sendo desenvolvido utilizando as ferramentas **Flex** e **Bis
 
 ### Organização e Cronograma do Projeto
 
-Claro! Aqui está um texto que você pode usar no README, explicando a organização da equipe e o cronograma do projeto:
-
----
-
-## Organização e Cronograma
-
 A equipe está utilizando as metodologias ágeis **Scrum** e **Kanban** para organizar e acompanhar o desenvolvimento do projeto. As atividades são gerenciadas por meio de um quadro Kanban, que permite o acompanhamento contínuo das tarefas a fazer, em andamento e concluídas a cada Sprint. O projeto está dividido em **5 sprints**, cada uma com duração média de **duas semanas**; As Sprints podem ser visualizadas na aba _Projects_ do repositório.
 
 Além da entrega final, o cronograma prevê **dois pontos de controle** intermediários, nos quais o progresso do projeto é apresentado e avaliado.
