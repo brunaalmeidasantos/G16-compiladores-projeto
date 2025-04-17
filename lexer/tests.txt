@@ -1,0 +1,17 @@
+// Este é um comentário de linha
+/*
+   Este é um comentário de bloco
+*/
+
+*       // operador de repetição
++       // operador de uma ou mais vezes
+?       // operador opcional
+
+{3}     // exatamente 3 vezes
+{2,}    // pelo menos 2 vezes
+{1,5}   // de 1 a 5 vezes
+
+Texto aleatório que será ignorado
+// outro comentário
+
+Por enquanto ele só lê uma linha por ida, então para fazer os testes vá apagando as linhas 
