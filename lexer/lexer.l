@@ -1,32 +1,48 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 enum t_tokens {
-    T_STRING = 256,
-    T_AND,
-    T_OR,
+    T_EQ = 256,
+    T_NE,
+    T_LT,
+    T_LE,
+    T_GT,
+    T_GE,
+    T_IS,
+    T_IN,
     T_NOT
 };
+
+extern int yylineno;
+extern char *yytext;
 %}
 
 %option noyywrap
+%option yylineno
 
-%% 
+%%
 
-\"([^\"\\]|\\.)*\"        { printf("T_STRING: %s\n", yytext); return T_STRING; }
-\'([^\'\\]|\\.)*\'        { printf("T_STRING: %s\n", yytext); return T_STRING; }
+[ \t]+                ;
 
-and                       { printf("T_AND\n"); return T_AND; }
-or                        { printf("T_OR\n"); return T_OR; }
-not                       { printf("T_NOT\n"); return T_NOT; }
+\n+                   { }
 
-.                         ;   // IGNORA OUTROS CARACTERES POR ENQUANTO, REMOVAM ESSA LINHA DEPOIS QUE OS DEMAIS TOKENS ESTIVEREM PRONTOS
+is                  { printf("T_IS (linha %d)\n", yylineno); return T_IS; }
+in                  { printf("T_IN (linha %d)\n", yylineno); return T_IN; }
+not                 { printf("T_NOT (linha %d)\n", yylineno); return T_NOT; }
+
+==                  { printf("T_EQ (linha %d)\n", yylineno); return T_EQ; }
+!=                  { printf("T_NE (linha %d)\n", yylineno); return T_NE; }
+<=                  { printf("T_LE (linha %d)\n", yylineno); return T_LE; }
+>=                  { printf("T_GE (linha %d)\n", yylineno); return T_GE; }
+<                   { printf("T_LT (linha %d)\n", yylineno); return T_LT; }
+>                   { printf("T_GT (linha %d)\n", yylineno); return T_GT; }
+
+.                     ;
 
 %%
 
 int main(int argc, char **argv) {
-    yylex();
+    while(yylex());
     return 0;
 }
