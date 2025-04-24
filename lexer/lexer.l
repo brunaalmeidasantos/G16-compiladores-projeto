@@ -43,7 +43,19 @@ enum t_tokens {
     T_WITH,
     T_YIELD,
     // Identificador
-    T_IDENTIFIER
+    T_IDENTIFIER,
+    // Delimitadores (adicionados)
+    T_LPAREN,     
+    T_RPAREN,     
+    T_LBRACKET,   
+    T_RBRACKET,   
+    T_LBRACE,     
+    T_RBRACE,     
+    T_COMMA,      
+    T_COLON,      
+    T_SEMICOLON,  
+    T_INDENT, 
+    T_NEWLINE   
 };
 %}
 
@@ -53,6 +65,18 @@ enum t_tokens {
 
 \"([^\"\\]|\\.)*\"        { printf("T_STRING: %s\n", yytext); return T_STRING; }
 \'([^\'\\]|\\.)*\'        { printf("T_STRING: %s\n", yytext); return T_STRING; }
+"("                       { printf("T_LPAREN\n"); return T_LPAREN; }
+")"                       { printf("T_RPAREN\n"); return T_RPAREN; }
+"["                       { printf("T_LBRACKET\n"); return T_LBRACKET; }
+"]"                       { printf("T_RBRACKET\n"); return T_RBRACKET; }
+"{"                       { printf("T_LBRACE\n"); return T_LBRACE; }
+"}"                       { printf("T_RBRACE\n"); return T_RBRACE; }
+","                       { printf("T_COMMA\n"); return T_COMMA; }
+":"                       { printf("T_COLON\n"); return T_COLON; }
+";"                       { printf("T_SEMICOLON\n"); return T_SEMICOLON; }
+^[ \t]+                   { printf("T_INDENT\n"); return T_INDENT; }  
+[ \t]+        ;                                          
+\n+                       { printf("T_NEWLINE\n"); return T_NEWLINE; }  
 
 and                       { printf("T_AND\n"); return T_AND; }
 or                        { printf("T_OR\n"); return T_OR; }
@@ -95,9 +119,7 @@ yield                     { printf("T_YIELD\n"); return T_YIELD; }
 
 [a-zA-Z_][a-zA-Z0-9_]*    { printf("T_IDENTIFIER: %s\n", yytext); return T_IDENTIFIER; }
 
-[ \t\n]                   ; /* Ignora espaços, tabs e novas linhas */
-
-#[^\n]*                   ; /* Ignora comentários */
+#[^\n]*    ;  
 
 .                         ;   // IGNORA OUTROS CARACTERES POR ENQUANTO, REMOVAM ESSA LINHA DEPOIS QUE OS DEMAIS TOKENS ESTIVEREM PRONTOS
 
