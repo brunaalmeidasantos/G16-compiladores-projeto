@@ -55,7 +55,8 @@ enum t_tokens {
     T_COLON,      
     T_SEMICOLON,  
     T_INDENT, 
-    T_NEWLINE   
+    T_NEWLINE,   
+    T_NUMBER
 };
 %}
 
@@ -116,6 +117,7 @@ while                     { printf("T_WHILE\n"); return T_WHILE; }
 with                      { printf("T_WITH\n"); return T_WITH; }
 yield                     { printf("T_YIELD\n"); return T_YIELD; }
 
+[0-9]+(\.[0-9]+)? { printf("T_NUMBER: %s\n", yytext); return T_NUMBER; }
 
 [a-zA-Z_][a-zA-Z0-9_]*    { printf("T_IDENTIFIER: %s\n", yytext); return T_IDENTIFIER; }
 
