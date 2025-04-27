@@ -123,8 +123,6 @@ yield                     { printf("T_YIELD\n"); return T_YIELD; }
 
 #[^\n]*    ;  
 
-.                         ;   // IGNORA OUTROS CARACTERES POR ENQUANTO, REMOVAM ESSA LINHA DEPOIS QUE OS DEMAIS TOKENS ESTIVEREM PRONTOS
-
 
 
 %%
