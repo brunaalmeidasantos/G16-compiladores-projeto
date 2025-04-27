@@ -5,11 +5,9 @@
 
 enum t_tokens {
     T_STRING = 256,
-    // Operadores lógicos
     T_AND,
     T_OR,
     T_NOT,
-    // palavras-chave
     T_FALSE,
     T_NONE,
     T_TRUE,
@@ -42,25 +40,32 @@ enum t_tokens {
     T_WHILE,
     T_WITH,
     T_YIELD,
-    // Identificador
     T_IDENTIFIER,
-    // Delimitadores (adicionados)
-    T_LPAREN,     
-    T_RPAREN,     
-    T_LBRACKET,   
-    T_RBRACKET,   
-    T_LBRACE,     
-    T_RBRACE,     
-    T_COMMA,      
-    T_COLON,      
-    T_SEMICOLON,  
-    T_INDENT, 
-    T_NEWLINE,   
-    T_NUMBER
+    T_LPAREN,
+    T_RPAREN,
+    T_LBRACKET,
+    T_RBRACKET,
+    T_LBRACE,
+    T_RBRACE,
+    T_COMMA,
+    T_COLON,
+    T_SEMICOLON,
+    T_INDENT,
+    T_NEWLINE,
+    T_NUMBER,
+    T_COMMENT,
+    T_BLOCK_COMMENT,
+    T_STAR,
+    T_PLUS,
+    T_OPTIONAL,
+    T_BRACE_RANGE
 };
 %}
 
 %option noyywrap
+
+DIGIT      [0-9]+
+SPACE      [ \t\n]*
 
 %% 
 
@@ -75,15 +80,12 @@ enum t_tokens {
 ","                       { printf("T_COMMA\n"); return T_COMMA; }
 ":"                       { printf("T_COLON\n"); return T_COLON; }
 ";"                       { printf("T_SEMICOLON\n"); return T_SEMICOLON; }
-^[ \t]+                   { printf("T_INDENT\n"); return T_INDENT; }  
-[ \t]+        ;                                          
-\n+                       { printf("T_NEWLINE\n"); return T_NEWLINE; }  
-
+^[ \t]+                   { printf("T_INDENT\n"); return T_INDENT; }
+[ \t]+                    ;
+\n+                       { printf("T_NEWLINE\n"); return T_NEWLINE; }
 and                       { printf("T_AND\n"); return T_AND; }
 or                        { printf("T_OR\n"); return T_OR; }
 not                       { printf("T_NOT\n"); return T_NOT; }
-
-
 False                     { printf("T_FALSE\n"); return T_FALSE; }
 None                      { printf("T_NONE\n"); return T_NONE; }
 True                      { printf("T_TRUE\n"); return T_TRUE; }
@@ -116,18 +118,22 @@ try                       { printf("T_TRY\n"); return T_TRY; }
 while                     { printf("T_WHILE\n"); return T_WHILE; }
 with                      { printf("T_WITH\n"); return T_WITH; }
 yield                     { printf("T_YIELD\n"); return T_YIELD; }
-
-[0-9]+(\.[0-9]+)? { printf("T_NUMBER: %s\n", yytext); return T_NUMBER; }
-
+[0-9]+(\.[0-9]+)?         { printf("T_NUMBER: %s\n", yytext); return T_NUMBER; }
 [a-zA-Z_][a-zA-Z0-9_]*    { printf("T_IDENTIFIER: %s\n", yytext); return T_IDENTIFIER; }
-
-#[^\n]*    ;  
-
-
+\/\/[^\n]*                { printf("T_COMMENT: %s\n", yytext); return T_COMMENT; }
+\/\*([^*]|\*+[^*/])*\*+\/ { printf("T_BLOCK_COMMENT: %s\n", yytext); return T_BLOCK_COMMENT; }
+\*                        { printf("T_STAR\n"); return T_STAR; }
+\+                        { printf("T_PLUS\n"); return T_PLUS; }
+\?                        { printf("T_OPTIONAL\n"); return T_OPTIONAL; }
+\{[0-9]+\}                { printf("T_BRACE_RANGE: %s\n", yytext); return T_BRACE_RANGE; }
+\{[0-9]+,\}               { printf("T_BRACE_RANGE: %s\n", yytext); return T_BRACE_RANGE; }
+\{[0-9]+,[0-9]+\}         { printf("T_BRACE_RANGE: %s\n", yytext); return T_BRACE_RANGE; }
+#[^\n]*                   ;
+.                         ;
 
 %%
 
 int main() {
-    while (yylex() != 0);  // Continua chamando yylex() até retornar 0 (fim da entrada)
+    while (yylex() != 0);
     return 0;
 }
