@@ -1,26 +1,34 @@
-# Introdução
+# Sobre o Projeto
 
-Nós somos o grupo 16 da matéria de Compiladores, e o nosso projeto se chama **Compylador**, uma ferramenta de tradução dos comandos de **Python** para **C**. Abaixo seguem os pontos principais a serem considerados sobre as duas linguagens.
+Somos o grupo 16 do projeto para a disciplina Compiladores 1, e o nosso projeto se chama **Compylador**, uma ferramenta de tradução dos comandos de **Python** para **C**. Este documento tem como finalidade apresentar as principais informações sobre o nosso projeto.
+
+O objetivo do projeto é criar um compilador de linha de comando que recebe um programa simples em Python como entrada, e gera como saída um programa equivalente em C, mantendo a lógica e a estrutura funcional. A escolha do grupo de desenvolver um compilador que traduz programas de Python para C baseou-se nos seguintes fatores:
+
+- **Relevância na prática:** Gerar código C a partir de Python aproxima nosso projeto de cenários do mundo real, onde linguagens de alto nível são traduzidas para linguagens de mais baixo nível para ganhar desempenho, portabilidade e controle.
+
+- **Viabilidade:** Ao escolher trabalhar com um conjunto controlado de Python (funções, loops, condicionais), o projeto permanece viável dentro do tempo disponível, sem a necessidade de implementar toda a complexidade da linguagem.
+
+Abaixo seguem os pontos principais a serem considerados sobre as linguagens **Python** e **C**.
 
 <br>
 
-> **C:**  
+**C:**  
 > A linguagem C, criada nos anos 1970 por Dennis Ritchie, é uma linguagem de programação de propósito geral, conhecida por sua eficiência e controle de baixo nível sobre o hardware. Ela funciona compilando o código diretamente para linguagem de máquina, o que proporciona alta performance. C é muito utilizada em sistemas operacionais, sistemas embarcados e aplicações que exigem desempenho máximo.
 
 <br>
 
-> **Python:**  
+**Python:**  
 > Python, desenvolvido por Guido van Rossum em 1991, é uma linguagem de programação de alto nível focada em legibilidade e simplicidade. Ela funciona de maneira interpretada, ou seja, o código é lido e executado linha por linha por um interpretador. Python é amplamente usado para desenvolvimento rápido de aplicações, automações, análise de dados e inteligência artificial, graças à sua vasta biblioteca e facilidade de uso.
 
 <br>
 
-> **Semelhanças entre C e Python:**  
+**Semelhanças entre C e Python:**  
 > - Ambas são linguagens de propósito geral e podem ser usadas para construir diversos tipos de programas.  
 > - Possuem ampla documentação e comunidades grandes, oferecendo suporte e ferramentas de desenvolvimento.  
 
 <br>
 
-> **Diferenças entre C e Python:**  
+**Diferenças entre C e Python:**  
 > - **Tipagem:**  
 >   - C tem tipagem estática e explícita; o programador precisa declarar o tipo de cada variável.  
 >   - Python tem tipagem dinâmica e implícita; o tipo é determinado automaticamente em tempo de execução.
@@ -33,9 +41,19 @@ Nós somos o grupo 16 da matéria de Compiladores, e o nosso projeto se chama **
 
 <br>
 
-> **Implicações de traduzir Python para C:**  
+**Implicações de traduzir Python para C:**  
 > - **Gestão de memória:** Em C, o programador precisa gerenciar manualmente a alocação e liberação de memória (com `malloc` e `free`), enquanto em Python existe coleta de lixo automática.  
 > - **Controle de tipos:** Python permite mudanças dinâmicas de tipo em variáveis, mas em C é necessário definir o tipo de cada variável desde o início e respeitá-lo estritamente.  
 > - **Complexidade da sintaxe:** A simplicidade da sintaxe Python seria perdida, já que C exige a escrita de mais código para operações simples, incluindo tratamento de erros manual.  
-> - **Bibliotecas e funções nativas:** Muitas funcionalidades nativas de Python (como manipulação de listas, strings e arquivos) precisariam ser reimplementadas ou adaptadas usando bibliotecas padrão de C ou código manual.   
+> - **Bibliotecas e funções nativas:** Muitas funcionalidades nativas de Python (como manipulação de listas, strings e arquivos) precisariam ser reimplementadas ou adaptadas usando bibliotecas padrão de C ou código manual.
 
+<br>
+
+## Estruturas do Python que serão traduzidas para C
+
+
+<br>
+
+## Gramática
+
+A gramática definida para a construção do **Compylador** pode ser visualizada em docs/gramatica.md.
