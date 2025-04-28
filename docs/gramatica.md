@@ -1,4 +1,10 @@
-# Tokens de comentário e operadores quantitativos no Analisador Léxico
+# Gramática do Compylador
+
+Este documento apresenta os tokens da linguagem Python definidos no analisador léxico do projeto **Compylador** - Compilador Python para C.
+
+
+
+## Tokens de Comentários
 
 > **T_COMMENT:**  
 > Representa comentários de linha única iniciados por `//`.  
@@ -18,6 +24,10 @@
 > /* Este é um
 >    comentário de bloco */
 > ```
+
+<br>
+
+## Tokens de Operadores Quantitativos
 
 > **T_STAR:**  
 > Representa o símbolo `*`.  
@@ -62,4 +72,43 @@
 
 Esses tokens são reconhecidos utilizando expressões regulares no analisador léxico.  
 Cada vez que um padrão é encontrado, um `printf` exibe o token identificado, ajudando na validação do processo de análise.
+
+<br>
+
+## Tokens de Operadores Condicionais
+
+
+<br>
+
+## Tokens de Operadores Lógicos
+
+
+<br>
+
+## Tokens de Palavras-Chave
+
+
+<br>
+
+## Tokens de Quebra de Linha
+
+
+<br>
+
+## Tokens de String
+
+
+<br>
+
+## Tokens de Espaço e Delimitador
+
+
+<br>
+
+## Tokens de Números
+
+
+<br>
+
+## Tokens de Identificadores
 
