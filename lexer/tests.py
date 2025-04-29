@@ -1,4 +1,9 @@
-a = 'Meu doguinho Bolt <3'
+a = '''Meu doguinho
+     Bolt <3'''
+
+x = True
+y = False
+z = False
 
 # Teste de palavras-chave
 if x and y or not z:
