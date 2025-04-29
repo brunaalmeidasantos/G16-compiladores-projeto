@@ -57,33 +57,36 @@ compound_statement:
     ;
 
 if_statement:
-    T_IF expression T_COLON T_NEWLINE T_INDENT statements
+    T_IF expression T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
     ;
 
 while_statement:
-    T_WHILE expression T_COLON T_NEWLINE T_INDENT statements
+    T_WHILE expression T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
     ;
 
 for_statement:
-    T_FOR T_IDENTIFIER T_IN expression T_COLON T_NEWLINE T_INDENT statements
+    T_FOR T_IDENTIFIER T_IN expression T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
     ;
 
 function_def:
-    T_DEF T_IDENTIFIER T_LPAREN T_RPAREN T_COLON T_NEWLINE T_INDENT statements
+    T_DEF T_IDENTIFIER T_LPAREN T_RPAREN T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
     ;
 
 class_def:
-    T_CLASS T_IDENTIFIER T_COLON T_NEWLINE T_INDENT statements
+    T_CLASS T_IDENTIFIER T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
     ;
 
 expression:
     T_NUMBER
-    | T_STRING
-    | T_IDENTIFIER
-    | T_TRUE
-    | T_FALSE
-    | T_NONE
-    ;
+  | T_STRING
+  | T_IDENTIFIER
+  | T_TRUE
+  | T_FALSE
+  | T_NONE
+  | expression T_AND expression
+  | expression T_OR expression
+  | T_NOT expression
+;
 
 %%
 
