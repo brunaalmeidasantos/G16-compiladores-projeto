@@ -99,7 +99,7 @@ Cada vez que um padrão é encontrado, um `printf` exibe o token identificado, a
 > isNumber or isString
 > ```
 
-> **T_NOT:** 
+> **T_NOT:**  
 > Representa o operador lógico `not`.  
 > **Regra usada:** `not` 
 > Detecta o operador lógico `not`.  
@@ -111,6 +111,308 @@ Cada vez que um padrão é encontrado, um `printf` exibe o token identificado, a
 <br>
 
 ## Tokens de Palavras-Chave
+
+> **T_TRUE:**  
+> Representa o valor booleano `True`.  
+> **Regra usada:** `True`  
+> Identifica o valor verdadeiro na linguagem Python.  
+> **Exemplo de código:**  
+> ```py
+> ativo = True
+> ``` 
+
+> **T_FALSE:**  
+> Representa o valor booleano `False`.  
+> **Regra usada:** `False`  
+> Identifica o valor falso na linguagem Python.  
+> **Exemplo de código:**
+> ```py
+> x = False
+> ``` 
+
+> **T_NONE:**  
+> Representa o valor nulo `None`.  
+> **Regra usada:** `None`  
+> Identifica a ausência de valor em Python.  
+> **Exemplo de código:**
+> ```py
+> resultado = None
+> ``` 
+
+> **T_AS:**  
+> Representa a palavra-chave `as`.  
+> **Regra usada:** `as`  
+> Usado em expressões de importação e gerenciamento de contexto.  
+> **Exemplo de código:**  
+> ```py
+> import math as m
+> ``` 
+
+> **T_ASSERT:**    
+> Representa a palavra-chave `assert`.    
+> **Regra usada:** `assert`    
+> Usado para verificar condições durante o desenvolvimento.  
+> **Exemplo de código:** 
+> ```py
+> assert x > 0, "x deve ser positivo"
+> ``` 
+
+> **T_ASYNC:**  
+> Representa a palavra-chave `async`.  
+> **Regra usada:** `async`  
+> Define funções assíncronas.  
+> **Exemplo de código:**    
+> ```py
+> async def fetch_data():
+> ```
+
+> **T_AWAIT:**  
+> Representa a palavra-chave `await`.  
+> **Regra usada:** `await`  
+> Usado para esperar por corrotinas.  
+> **Exemplo de código:**  
+> ```py
+> result = await some_task()
+> ```
+
+> **T_BREAK:**  
+> Representa a palavra-chave `break`.  
+> **Regra usada:** `break`  
+> Interrompe loops.  
+> **Exemplo de código:**  
+> ```py
+> while True:
+>    break
+> ```
+
+> **T_CLASS:**  
+> Representa a palavra-chave `class`.  
+> **Regra usada:** `class`  
+> Define classes.  
+> **Exemplo de código:**  
+> ```py
+> class MinhaClasse:
+> ```
+
+> **T_CONTINUE:**  
+> Representa a palavra-chave `continue`.  
+> **Regra usada:** `continue`  
+> Pula para a próxima iteração do loop.  
+> **Exemplo de código:**  
+> ```py
+> for i in range(10):
+>    if i % 2:
+>         continue
+> ```
+
+> **T_DEF:**  
+> Representa a palavra-chave `def`.  
+> **Regra usada:** `def`  
+> Define funções.  
+> **Exemplo de código:**  
+> ```py
+> def calcular():
+> ```
+
+> **T_DEL:**  
+> Representa a palavra-chave `del`.  
+> **Regra usada:** `del`  
+> Remove referências a objetos.  
+> **Exemplo de código:**  
+> ```py
+> del lista[0]
+> ```
+
+> **T_ELIF:**  
+> Representa a palavra-chave `elif`.  
+> **Regra usada:** `elif`  
+> Condicional "else if".  
+> **Exemplo de código:**  
+> ```py
+> if x > 0:
+>     ...
+> elif x < 0:
+> ```
+
+> **T_ELSE:**  
+> Representa a palavra-chave `else`.  
+> **Regra usada:** `else`  
+> Cláusula final condicional.  
+> **Exemplo de código:**  
+> ```py
+> if x > 0:
+>     ...
+> else:
+> ```
+
+> **T_EXCEPT:**  
+> Representa a palavra-chave `except`.  
+> **Regra usada:** `except`  
+> Captura exceções.  
+> **Exemplo de código:**  
+> ```py
+> try:
+>     ...
+> except ValueError:
+> ```
+
+> **T_FINALLY:**  
+> Representa a palavra-chave `finally`.  
+> **Regra usada:** `finally`  
+> Executa código independentemente de exceções.  
+> **Exemplo de código:**  
+> ```py
+> try:
+>     ...
+> finally:
+>     cleanup()
+> ```
+
+> **T_FOR:**  
+> Representa a palavra-chave `for`.  
+> **Regra usada:** `for`  
+> Inicia loops.  
+> **Exemplo de código:**    
+> ```py
+> for item in lista:
+> ```
+
+> **T_FROM:**  
+> Representa a palavra-chave `from`.  
+> **Regra usada:** `from`  
+> Usado em importações.  
+> **Exemplo de código:**  
+> ```py
+> from math import sqrt
+> ```
+
+> **T_GLOBAL:**  
+> Representa a palavra-chave `global`.  
+> **Regra usada:** `global`  
+> Declara variáveis globais.  
+> **Exemplo de código:**  
+> ```py
+> global contador
+> ```
+
+> **T_IF:**  
+> Representa a palavra-chave `if`.  
+> **Regra usada:** `if`  
+> Inicia condicionais.  
+> **Exemplo de código:**  
+> ```py
+> if condicao:
+> ```
+
+> **T_IMPORT:**  
+> Representa a palavra-chave `import`.  
+> **Regra usada:** `import`  
+> Importa módulos.  
+> **Exemplo de código:**  
+> ```py
+> import os
+> ```
+
+> **T_IN:**  
+> Representa a palavra-chave `in`.  
+> **Regra usada:** `in`  
+> Testa pertencimento.  
+> **Exemplo de código:**  
+> ```py
+> if x in lista:
+> ```
+
+> **T_IS:**  
+> Representa a palavra-chave `is`.  
+> **Regra usada:** `is`  
+> Compara identidade de objetos.  
+> **Exemplo de código:**  
+> ```py
+> if x is None:
+> ```
+
+> **T_LAMBDA:**  
+> Representa a palavra-chave `lambda`.  
+> **Regra usada:** `lambda`  
+> Cria funções anônimas.  
+> **Exemplo de código:**  
+> ```py
+> f = lambda x: x*2
+> ```
+
+> **T_NONLOCAL:**  
+> Representa a palavra-chave `nonlocal`.  
+> **Regra usada:** `nonlocal`  
+> Declara variáveis não-locais.  
+> **Exemplo de código:**  
+> ```py
+> nonlocal x
+> ```
+
+> **T_PASS:**  
+> Representa a palavra-chave `pass`.  
+> **Regra usada:** `pass`  
+> Operação nula.  
+> **Exemplo de código:**  
+> ```py
+> def funcao_vazia():
+>    pass
+> ```
+
+> **T_RAISE:**  
+> Representa a palavra-chave `raise`.  
+> **Regra usada:** `raise`  
+> Levanta exceções.  
+> **Exemplo de código:**  
+> ```py
+> raise ValueError("Erro")
+> ```
+
+> **T_RETURN:**  
+> Representa a palavra-chave `return`.  
+> **Regra usada:** `return`  
+> Retorna valores de funções.  
+> **Exemplo de código:**  
+> ```py
+> return resultado
+> ```
+
+> **T_TRY:**  
+> Representa a palavra-chave `try`.  
+> **Regra usada:** `try`  
+> Inicia blocos de tratamento de exceção.  
+> **Exemplo de código:**  
+> ```py
+> try:
+>   operacao_risco()
+> ```
+
+> **T_WHILE:**  
+> Representa a palavra-chave `while`.  
+> **Regra usada:** `while`  
+> Inicia loops condicionais.  
+> **Exemplo de código:**  
+> ```py
+> while condicao:
+> ```
+
+> **T_WITH:**  
+> Representa a palavra-chave `with`.  
+> **Regra usada:** `with`  
+> Gerenciamento de contexto.  
+> **Exemplo de código:**  
+> ```py
+> with open('file.txt') as f:
+> ```
+
+> **T_YIELD:**  
+> Representa a palavra-chave `yield`.  
+> **Regra usada:** `yield`  
+> Cria geradores.  
+> **Exemplo de código:**  
+> ```py
+> yield valor
+> ```
 
 
 <br>
