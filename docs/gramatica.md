@@ -73,9 +73,93 @@ Este documento apresenta os tokens da linguagem Python definidos no analisador l
 Esses tokens são reconhecidos utilizando expressões regulares no analisador léxico.  
 Cada vez que um padrão é encontrado, um `printf` exibe o token identificado, ajudando na validação do processo de análise.
 
-<br>
+
+---
 
 ## Tokens de Operadores Condicionais
+
+> **T_EQ:**  
+> Representa o operador de igualdade `==`.  
+> **Regra usada:** `==`  
+> Detecta comparações onde se verifica se dois valores são iguais.  
+> **Exemplo de código:**  
+> ```py
+> if a == b:
+> ```
+
+> **T_NE:**  
+> Representa o operador de diferença `!=`.  
+> **Regra usada:** `!=`  
+> Detecta comparações onde se verifica se dois valores são diferentes.  
+> **Exemplo de código:**  
+> ```py
+> if a != b:
+> ```
+
+> **T_LT:**  
+> Representa o operador de menor que `<`.  
+> **Regra usada:** `<`  
+> Detecta comparações para verificar se um valor é menor que outro.  
+> **Exemplo de código:**  
+> ```py
+> if a < b:
+> ```
+
+> **T_LE:**  
+> Representa o operador de menor ou igual `<=`.  
+> **Regra usada:** `<=`  
+> Detecta comparações onde um valor pode ser menor ou igual a outro.  
+> **Exemplo de código:**  
+> ```py
+> if a <= b:
+> ```
+
+> **T_GT:**  
+> Representa o operador de maior que `>`.  
+> **Regra usada:** `>`  
+> Detecta comparações para verificar se um valor é maior que outro.  
+> **Exemplo de código:**  
+> ```py
+> if a > b:
+> ```
+
+> **T_GE:**  
+> Representa o operador de maior ou igual `>=`.  
+> **Regra usada:** `>=`  
+> Detecta comparações onde um valor pode ser maior ou igual a outro.  
+> **Exemplo de código:**  
+> ```py
+> if a >= b:
+> ```
+
+> **T_IS:**  
+> Representa o operador `is`.  
+> **Regra usada:** `is`  
+> Detecta comparações de identidade entre objetos.  
+> **Exemplo de código:**  
+> ```py
+> if x is None:
+> ```
+
+> **T_IN:**  
+> Representa o operador `in`.  
+> **Regra usada:** `in`  
+> Detecta se um elemento pertence a uma sequência ou coleção.  
+> **Exemplo de código:**  
+> ```py
+> if item in lista:
+> ```
+
+> **T_NOT:**  
+> Representa o operador `not`, usado também em expressões compostas (`not in`, `is not`).  
+> **Regra usada:** `not`  
+> Detecta a negação de uma condição ou participação em expressões compostas.  
+> **Exemplo de código:**  
+> ```py
+> if not ativo:
+> if x is not None:
+> if item not in lista:
+> ```
 
 
 <br>
