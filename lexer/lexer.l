@@ -1,7 +1,6 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 enum t_tokens {
     T_STRING = 256,
@@ -58,11 +57,23 @@ enum t_tokens {
     T_STAR,
     T_PLUS,
     T_OPTIONAL,
-    T_BRACE_RANGE
+    T_BRACE_RANGE,
+    T_EQ,
+    T_NE,
+    T_LT,
+    T_LE,
+    T_GT,
+    T_GE
 };
+
+extern int yylineno;
+extern char *yytext;
 %}
 
 %option noyywrap
+%option yylineno
+
+%%
 
 DIGIT      [0-9]+
 SPACE      [ \t\n]*
@@ -128,6 +139,12 @@ yield                     { printf("T_YIELD\n"); return T_YIELD; }
 \{[0-9]+\}                { printf("T_BRACE_RANGE: %s\n", yytext); return T_BRACE_RANGE; }
 \{[0-9]+,\}               { printf("T_BRACE_RANGE: %s\n", yytext); return T_BRACE_RANGE; }
 \{[0-9]+,[0-9]+\}         { printf("T_BRACE_RANGE: %s\n", yytext); return T_BRACE_RANGE; }
+==                        { printf("T_EQ\n"); return T_EQ; }
+!=                        { printf("T_NE\n"); return T_NE; }
+<=                        { printf("T_LE\n"); return T_LE; }
+>=                        { printf("T_GE\n"); return T_GE; }
+<                         { printf("T_LT\n"); return T_LT; }
+>                         { printf("T_GT\n"); return T_GT; }
 #[^\n]*                   ;
 .                         ;
 
