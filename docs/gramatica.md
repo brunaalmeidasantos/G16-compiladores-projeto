@@ -91,7 +91,15 @@ Cada vez que um padrão é encontrado, um `printf` exibe o token identificado, a
 <br>
 
 ## Tokens de Quebra de Linha
-
+> **T_NEWLINE:**  
+> Representa quebras de linha (`\n`).  
+> **Regra usada:** `\n+`  
+> Detecta uma ou mais ocorrências de `\n`, essencial para delimitar instruções em Python.  
+> **Exemplo de código:**  
+> ```python
+> x = 10  # T_NEWLINE gerado aqui
+> y = 20
+> ```
 
 <br>
 
@@ -101,6 +109,46 @@ Cada vez que um padrão é encontrado, um `printf` exibe o token identificado, a
 <br>
 
 ## Tokens de Espaço e Delimitador
+> **T_INDENT:**  
+> Representa indentação no início de linha (espaços ou tabs).  
+> **Regra usada:** `^[ \t]+`  
+> Captura espaços/tabs apenas no início da linha.  
+> **Exemplo de código:**  
+> ```python
+> if True:
+>     print("Indentado")  # T_INDENT aqui
+> ```
+
+> **T_COMMA:**  
+> Representa o delimitador `,`.  
+> **Regra usada:** `,`  
+> Usado para separar elementos em listas, tuplas ou parâmetros.  
+> **Exemplo de código:**  
+> ```python
+> [1, 2, 3]  # T_COMMA identificado
+> ```
+
+> **T_COLON:**  
+> Representa o símbolo `:`.  
+> **Regra usada:** `:`  
+> Define blocos de código (if/for/def) e dicionários.  
+> **Exemplo de código:**  
+> ```python
+> def função():  # T_COLON aqui
+> ```
+
+> **T_SEMICOLON:**  
+> Representa `;`.  
+> **Regra usada:** `;`  
+> Separa múltiplos comandos numa linha.
+> **Exemplo de código:**  
+> ```python
+> x=1; y=2  # T_SEMICOLON
+> ```
+
+> **Espaços ignorados:**  
+> **Regra usada:** `[ \t]+`  
+> Espaços/tabs no meio da linha não geram tokens.  
 
 
 <br>
