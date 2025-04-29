@@ -1,0 +1,10 @@
+# Ignorar arquivos gerados pelo Flex (Lex)
+lexer/lex.yy.c
+lexer/lexer
+
+# Ignorar arquivos gerados pelo Bison (Yacc)
+parser/parser.tab.c
+parser/parser.tab.h
+
+# Ignorar arquivo do compilador gerado pelo flex + bison
+compilador
