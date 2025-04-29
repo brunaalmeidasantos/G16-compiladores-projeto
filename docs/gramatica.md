@@ -210,7 +210,7 @@ Cada vez que um padrão é encontrado, um `printf` exibe o token identificado, a
 
 ## Tokens de Identificadores
 
->**T_IDENTIFIER**
+> **T_IDENTIFIER**
 > Representa identificadores (nomes de variáveis, funções, classes etc).
 > **Regra usada:** `[a-zA-Z_][a-zA-Z0-9_]*`
 > Essa expressão aceita palavras que comecem por letra ou `_`, seguidas por letras, números ou `_`. Compatível com nomes válidos em Python.
