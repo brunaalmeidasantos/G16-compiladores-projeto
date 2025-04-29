@@ -196,8 +196,27 @@ Cada vez que um padrão é encontrado, um `printf` exibe o token identificado, a
 
 ## Tokens de Números
 
+> **T_NUMBER:**
+> Representa valores numéricos inteiros ou decimais.
+> **Regra usada:** `[0-9]+(\.[0-9]+)?`
+> Essa expressão identifica números inteiros como `42` ou decimais como `3.14`. O ponto e a parte decimal são opcionais, o que permite que inteiros sejam aceitos.
+> **Exemplos de código:**
+> ```python
+> idade = 25       # T_NUMBER gerado para 25
+> pi = 3.14        # T_NUMBER gerado para 3.14
+> ```
 
 <br>
 
 ## Tokens de Identificadores
 
+>**T_IDENTIFIER**
+> Representa identificadores (nomes de variáveis, funções, classes etc).
+> **Regra usada:** `[a-zA-Z_][a-zA-Z0-9_]*`
+> Essa expressão aceita palavras que comecem por letra ou `_`, seguidas por letras, números ou `_`. Compatível com nomes válidos em Python.
+> **Exemplos de código:**
+> ```python
+> nome = "João"        # T_IDENTIFIER para nome
+> calcularMedia()      # T_IDENTIFIER para calcularMedia
+> _variavelInterna     # T_IDENTIFIER para _variavelInterna
+> ```
