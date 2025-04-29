@@ -2,11 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int num_linha = 1;
-
-#define PRINT_TOKEN(tok) printf("[linha %d] %s\n", num_linha, tok)
-#define PRINT_TOKEN_TEXT(tok) printf("[linha %d] %s: %s\n", num_linha, tok, yytext)
-
 enum t_tokens {
     T_STRING = 256,
     T_AND,
@@ -85,73 +80,71 @@ SPACE      [ \t\n]*
 
 %% 
 
-\"\"\"([^\"\\]|\\.|(\n))*\"\"\"    { PRINT_TOKEN_TEXT("T_STRING"); return T_STRING; }
-\'\'\'([^\'\\]|\\.|(\n))*\'\'\'    { PRINT_TOKEN_TEXT("T_STRING"); return T_STRING; }
-\"([^\"\\\n]|\\.)*\"               { PRINT_TOKEN_TEXT("T_STRING"); return T_STRING; }
-\'([^\'\\\n]|\\.)*\'               { PRINT_TOKEN_TEXT("T_STRING"); return T_STRING; }
-"("                       { PRINT_TOKEN("T_LPAREN"); return T_LPAREN; }
-")"                       { PRINT_TOKEN("T_RPAREN"); return T_RPAREN; }
-"["                       { PRINT_TOKEN("T_LBRACKET"); return T_LBRACKET; }
-"]"                       { PRINT_TOKEN("T_RBRACKET"); return T_RBRACKET; }
-"{"                       { PRINT_TOKEN("T_LBRACE"); return T_LBRACE; }
-"}"                       { PRINT_TOKEN("T_RBRACE"); return T_RBRACE; }
-","                       { PRINT_TOKEN("T_COMMA"); return T_COMMA; }
-":"                       { PRINT_TOKEN("T_COLON"); return T_COLON; }
-";"                       { PRINT_TOKEN("T_SEMICOLON"); return T_SEMICOLON; }
-^[ \t]+                   { PRINT_TOKEN("T_INDENT"); return T_INDENT; }
+\"([^\"\\]|\\.)*\"        { printf("T_STRING: %s\n", yytext); return T_STRING; }
+\'([^\'\\]|\\.)*\'        { printf("T_STRING: %s\n", yytext); return T_STRING; }
+"("                       { printf("T_LPAREN\n"); return T_LPAREN; }
+")"                       { printf("T_RPAREN\n"); return T_RPAREN; }
+"["                       { printf("T_LBRACKET\n"); return T_LBRACKET; }
+"]"                       { printf("T_RBRACKET\n"); return T_RBRACKET; }
+"{"                       { printf("T_LBRACE\n"); return T_LBRACE; }
+"}"                       { printf("T_RBRACE\n"); return T_RBRACE; }
+","                       { printf("T_COMMA\n"); return T_COMMA; }
+":"                       { printf("T_COLON\n"); return T_COLON; }
+";"                       { printf("T_SEMICOLON\n"); return T_SEMICOLON; }
+^[ \t]+                   { printf("T_INDENT\n"); return T_INDENT; }
 [ \t]+                    ;
-\n+                       { num_linha += yyleng; PRINT_TOKEN("T_NEWLINE"); return T_NEWLINE; }
-and                       { PRINT_TOKEN("T_AND"); return T_AND; }
-or                        { PRINT_TOKEN("T_OR"); return T_OR; }
-not                       { PRINT_TOKEN("T_NOT"); return T_NOT; }
-False                     { PRINT_TOKEN("T_FALSE"); return T_FALSE; }
-None                      { PRINT_TOKEN("T_NONE"); return T_NONE; }
-True                      { PRINT_TOKEN("T_TRUE"); return T_TRUE; }
-as                        { PRINT_TOKEN("T_AS"); return T_AS; }
-assert                    { PRINT_TOKEN("T_ASSERT"); return T_ASSERT; }
-async                     { PRINT_TOKEN("T_ASYNC"); return T_ASYNC; }
-await                     { PRINT_TOKEN("T_AWAIT"); return T_AWAIT; }
-break                     { PRINT_TOKEN("T_BREAK"); return T_BREAK; }
-class                     { PRINT_TOKEN("T_CLASS"); return T_CLASS; }
-continue                  { PRINT_TOKEN("T_CONTINUE"); return T_CONTINUE; }
-def                       { PRINT_TOKEN("T_DEF"); return T_DEF; }
-del                       { PRINT_TOKEN("T_DEL"); return T_DEL; }
-elif                      { PRINT_TOKEN("T_ELIF"); return T_ELIF; }
-else                      { PRINT_TOKEN("T_ELSE"); return T_ELSE; }
-except                    { PRINT_TOKEN("T_EXCEPT"); return T_EXCEPT; }
-finally                   { PRINT_TOKEN("T_FINALLY"); return T_FINALLY; }
-for                       { PRINT_TOKEN("T_FOR"); return T_FOR; }
-from                      { PRINT_TOKEN("T_FROM"); return T_FROM; }
-global                    { PRINT_TOKEN("T_GLOBAL"); return T_GLOBAL; }
-if                        { PRINT_TOKEN("T_IF"); return T_IF; }
-import                    { PRINT_TOKEN("T_IMPORT"); return T_IMPORT; }
-in                        { PRINT_TOKEN("T_IN"); return T_IN; }
-is                        { PRINT_TOKEN("T_IS"); return T_IS; }
-lambda                    { PRINT_TOKEN("T_LAMBDA"); return T_LAMBDA; }
-nonlocal                  { PRINT_TOKEN("T_NONLOCAL"); return T_NONLOCAL; }
-pass                      { PRINT_TOKEN("T_PASS"); return T_PASS; }
-raise                     { PRINT_TOKEN("T_RAISE"); return T_RAISE; }
-return                    { PRINT_TOKEN("T_RETURN"); return T_RETURN; }
-try                       { PRINT_TOKEN("T_TRY"); return T_TRY; }
-while                     { PRINT_TOKEN("T_WHILE"); return T_WHILE; }
-with                      { PRINT_TOKEN("T_WITH"); return T_WITH; }
-yield                     { PRINT_TOKEN("T_YIELD"); return T_YIELD; }
-[0-9]+(\.[0-9]+)?         { PRINT_TOKEN_TEXT("T_NUMBER: %s", yytext); return T_NUMBER; }
-[a-zA-Z_][a-zA-Z0-9_]*    { PRINT_TOKEN_TEXT("T_IDENTIFIER: %s", yytext); return T_IDENTIFIER; }
-\/\/[^\n]*                { PRINT_TOKEN("T_COMMENT: %s", yytext); return T_COMMENT; }
-\/\*([^*]|\*+[^*/])*\*+\/ { PRINT_TOKEN("T_BLOCK_COMMENT: %s", yytext); return T_BLOCK_COMMENT; }
-\*                        { PRINT_TOKEN("T_STAR"); return T_STAR; }
-\+                        { PRINT_TOKEN("T_PLUS"); return T_PLUS; }
-\?                        { PRINT_TOKEN("T_OPTIONAL"); return T_OPTIONAL; }
-\{[0-9]+\}                { PRINT_TOKEN("T_BRACE_RANGE: %s", yytext); return T_BRACE_RANGE; }
-\{[0-9]+,\}               { PRINT_TOKEN("T_BRACE_RANGE: %s", yytext); return T_BRACE_RANGE; }
-\{[0-9]+,[0-9]+\}         { PRINT_TOKEN("T_BRACE_RANGE: %s", yytext); return T_BRACE_RANGE; }
-==                        { PRINT_TOKEN("T_EQ"); return T_EQ; }
-!=                        { PRINT_TOKEN("T_NE"); return T_NE; }
-<=                        { PRINT_TOKEN("T_LE"); return T_LE; }
->=                        { PRINT_TOKEN("T_GE"); return T_GE; }
-<                         { PRINT_TOKEN("T_LT"); return T_LT; }
->                         { PRINT_TOKEN("T_GT"); return T_GT; }
+\n+                       { printf("T_NEWLINE\n"); return T_NEWLINE; }
+and                       { printf("T_AND\n"); return T_AND; }
+or                        { printf("T_OR\n"); return T_OR; }
+not                       { printf("T_NOT\n"); return T_NOT; }
+False                     { printf("T_FALSE\n"); return T_FALSE; }
+None                      { printf("T_NONE\n"); return T_NONE; }
+True                      { printf("T_TRUE\n"); return T_TRUE; }
+as                        { printf("T_AS\n"); return T_AS; }
+assert                    { printf("T_ASSERT\n"); return T_ASSERT; }
+async                     { printf("T_ASYNC\n"); return T_ASYNC; }
+await                     { printf("T_AWAIT\n"); return T_AWAIT; }
+break                     { printf("T_BREAK\n"); return T_BREAK; }
+class                     { printf("T_CLASS\n"); return T_CLASS; }
+continue                  { printf("T_CONTINUE\n"); return T_CONTINUE; }
+def                       { printf("T_DEF\n"); return T_DEF; }
+del                       { printf("T_DEL\n"); return T_DEL; }
+elif                      { printf("T_ELIF\n"); return T_ELIF; }
+else                      { printf("T_ELSE\n"); return T_ELSE; }
+except                    { printf("T_EXCEPT\n"); return T_EXCEPT; }
+finally                   { printf("T_FINALLY\n"); return T_FINALLY; }
+for                       { printf("T_FOR\n"); return T_FOR; }
+from                      { printf("T_FROM\n"); return T_FROM; }
+global                    { printf("T_GLOBAL\n"); return T_GLOBAL; }
+if                        { printf("T_IF\n"); return T_IF; }
+import                    { printf("T_IMPORT\n"); return T_IMPORT; }
+in                        { printf("T_IN\n"); return T_IN; }
+is                        { printf("T_IS\n"); return T_IS; }
+lambda                    { printf("T_LAMBDA\n"); return T_LAMBDA; }
+nonlocal                  { printf("T_NONLOCAL\n"); return T_NONLOCAL; }
+pass                      { printf("T_PASS\n"); return T_PASS; }
+raise                     { printf("T_RAISE\n"); return T_RAISE; }
+return                    { printf("T_RETURN\n"); return T_RETURN; }
+try                       { printf("T_TRY\n"); return T_TRY; }
+while                     { printf("T_WHILE\n"); return T_WHILE; }
+with                      { printf("T_WITH\n"); return T_WITH; }
+yield                     { printf("T_YIELD\n"); return T_YIELD; }
+[0-9]+(\.[0-9]+)?         { printf("T_NUMBER: %s\n", yytext); return T_NUMBER; }
+[a-zA-Z_][a-zA-Z0-9_]*    { printf("T_IDENTIFIER: %s\n", yytext); return T_IDENTIFIER; }
+\/\/[^\n]*                { printf("T_COMMENT: %s\n", yytext); return T_COMMENT; }
+\/\*([^*]|\*+[^*/])*\*+\/ { printf("T_BLOCK_COMMENT: %s\n", yytext); return T_BLOCK_COMMENT; }
+\*                        { printf("T_STAR\n"); return T_STAR; }
+\+                        { printf("T_PLUS\n"); return T_PLUS; }
+\?                        { printf("T_OPTIONAL\n"); return T_OPTIONAL; }
+\{[0-9]+\}                { printf("T_BRACE_RANGE: %s\n", yytext); return T_BRACE_RANGE; }
+\{[0-9]+,\}               { printf("T_BRACE_RANGE: %s\n", yytext); return T_BRACE_RANGE; }
+\{[0-9]+,[0-9]+\}         { printf("T_BRACE_RANGE: %s\n", yytext); return T_BRACE_RANGE; }
+==                        { printf("T_EQ\n"); return T_EQ; }
+!=                        { printf("T_NE\n"); return T_NE; }
+<=                        { printf("T_LE\n"); return T_LE; }
+>=                        { printf("T_GE\n"); return T_GE; }
+<                         { printf("T_LT\n"); return T_LT; }
+>                         { printf("T_GT\n"); return T_GT; }
 #[^\n]*                   ;
 .                         ;
 
