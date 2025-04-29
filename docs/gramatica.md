@@ -81,7 +81,32 @@ Cada vez que um padrão é encontrado, um `printf` exibe o token identificado, a
 <br>
 
 ## Tokens de Operadores Lógicos
+> **T_AND:**  
+> Representa o operador lógico `and`.  
+> **Regra usada:** `and`  
+> Detecta o operador lógico `and`.  
+> **Exemplo de código:**  
+> ```py
+> isNumber and isPositive
+> ```
 
+> **T_OR:**  
+> Representa o operador lógico `or`.  
+> **Regra usada:** `or`  
+> Detecta o operador lógico `or`.  
+> **Exemplo de código:**  
+> ```py
+> isNumber or isString
+> ```
+
+> **T_NOT:** 
+> Representa o operador lógico `not`.  
+> **Regra usada:** `not` 
+> Detecta o operador lógico `not`.  
+> **Exemplo de código:**  
+> ```py
+> not isNumber
+> ``` 
 
 <br>
 
@@ -104,7 +129,23 @@ Cada vez que um padrão é encontrado, um `printf` exibe o token identificado, a
 <br>
 
 ## Tokens de String
+> **T_STRING:**  
+> Representa strings iniciadas e terminadas por aspas duplas (`"`).  
+> **Regra usada:** `\"([^\"\\]|\\.)*\"`  
+> Esta expressão regular identifica qualquer string delimitada por `"`. A regra permite que a string possua aspas duplas em seu conteúdo, conforme regras para utilização da mesma nesse caso.  
+> **Exemplo de código:**  
+> ```py
+> "Isso é uma string com aspas duplas."
+> ```
 
+> **T_STRING:**  
+> Representa strings iniciadas e terminadas por aspas simples (`'`).  
+> **Regra usada:** `'([^\'\\]|\\.)*\`  
+> Esta expressão regular identifica qualquer string delimitada por `'`. A regra permite que a string possua aspas simples em seu conteúdo, conforme regras para utilização da mesma nesse caso.  
+> **Exemplo de código:**  
+> ```py
+> 'Isso é uma string com aspas simples.'
+> ```
 
 <br>
 
