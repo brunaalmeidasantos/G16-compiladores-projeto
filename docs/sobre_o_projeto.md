@@ -49,8 +49,132 @@ Abaixo seguem os pontos principais a serem considerados sobre as linguagens **Py
 
 <br>
 
-## Estruturas do Python que serão traduzidas para C
+# Estruturas do Python que serão traduzidas para C
 
+
+## Declarações de Variáveis
+### O que representa em Python
+- Variáveis são criadas dinamicamente ao receberem valores
+- Tipagem dinâmica (o tipo é inferido do valor atribuído)
+- Não requer declaração explícita de tipo
+
+```python
+# Exemplo Python
+x = 10           # Inteiro
+y = 3.14         # Float
+nome = "Alice"   # String
+```
+### Tradução para C
+
+- Declaração explícita do tipo antes do nome
+
+- Atribuição pode ser feita na declaração ou depois
+
+- Escopo definido pelo local de declaração
+
+```c
+// Forma geral
+tipo nome_variavel;
+tipo nome_variavel = valor;
+
+// Exemplos
+int idade = 25;
+float altura = 1.75;
+char letra = 'A';
+```
+
+## Laços (for, while)
+### O que representa em Python
+Estruturas de controle para repetição de blocos de código:
+
+```python
+# FOR - Forma geral em Python
+for i in range(início, fim, passo):
+    # Corpo do laço
+    pass
+
+# WHILE - Forma geral em Python
+while condição:
+    # Corpo do laço
+    pass
+```
+
+### Tradução para C
+- Sintaxe similar mas com diferenças importantes
+- Uso obrigatório de chaves `{}`
+- Controle mais explícito de iterações
+
+```c
+// FOR - Forma geral
+for (inicialização; condição; incremento) {
+    // Corpo do laço
+}
+
+// WHILE - Forma geral
+while (condição) {
+    // Corpo do laço
+}
+```
+
+## Funções
+### O que representa em Python
+Blocos reutilizáveis de código definidos com `def`, que podem receber parâmetros e retornar valores.
+
+```python
+// Forma geral
+tipo_retorno nome_funcao(tipo_param1 param1, tipo_param2 param2) {
+    // Corpo da função
+    return valor;
+}
+```
+
+### Tradução para C
+- Declaração explícita de tipos de retorno e parâmetros
+- Uso de `return` similar ao Python
+- Protótipo de função necessário quando chamado antes da definição
+
+```c
+// Forma geral
+tipo_retorno nome_funcao(tipo_param1 param1, tipo_param2 param2) {
+    // Corpo da função
+    return valor;
+}
+```
+
+## Condicionais
+
+### O que representa em Python
+- Estruturas usadas para tomar decisões com base em condições
+- Usa `if`, `elif` (equivalente a `else if`), e `else`
+- Os blocos são definidos por indentação
+
+```python
+# Exemplo Python
+idade = 18
+
+if idade >= 18:
+    print("Maior de idade")
+elif idade > 12:
+    print("Adolescente")
+else:
+    print("Criança")
+```
+### Tradução para C
+- Usa if, else if e else
+- Blocos definidos com { } ao invés de indentação
+```C
+// Exemplo C
+int idade = 18;
+
+if (idade >= 18) {
+    printf("Maior de idade\n");
+} else if (idade > 12) {
+    printf("Adolescente\n");
+} else {
+    printf("Criança\n");
+}
+
+```
 
 <br>
 
