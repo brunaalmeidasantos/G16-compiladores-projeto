@@ -56,8 +56,10 @@ enum t_tokens {
     T_BLOCK_COMMENT,
     T_STAR,
     T_PLUS,
+    T_MINUS,
     T_OPTIONAL,
     T_BRACE_RANGE,
+    T_EQUAL,
     T_EQ,
     T_NE,
     T_LT,
@@ -134,11 +136,13 @@ yield                     { printf("T_YIELD\n"); return T_YIELD; }
 \/\/[^\n]*                { printf("T_COMMENT: %s\n", yytext); return T_COMMENT; }
 \/\*([^*]|\*+[^*/])*\*+\/ { printf("T_BLOCK_COMMENT: %s\n", yytext); return T_BLOCK_COMMENT; }
 \*                        { printf("T_STAR\n"); return T_STAR; }
+\-                        { printf("T_MINUS\n"); return T_MINUS; }
 \+                        { printf("T_PLUS\n"); return T_PLUS; }
 \?                        { printf("T_OPTIONAL\n"); return T_OPTIONAL; }
 \{[0-9]+\}                { printf("T_BRACE_RANGE: %s\n", yytext); return T_BRACE_RANGE; }
 \{[0-9]+,\}               { printf("T_BRACE_RANGE: %s\n", yytext); return T_BRACE_RANGE; }
 \{[0-9]+,[0-9]+\}         { printf("T_BRACE_RANGE: %s\n", yytext); return T_BRACE_RANGE; }
+=                         { printf("T_EQUAL\n"); return T_EQUAL; }
 ==                        { printf("T_EQ\n"); return T_EQ; }
 !=                        { printf("T_NE\n"); return T_NE; }
 <=                        { printf("T_LE\n"); return T_LE; }
