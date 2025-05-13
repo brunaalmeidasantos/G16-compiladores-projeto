@@ -6,7 +6,9 @@ LEXER = lexer/lexer.l
 PARSER = parser/parser.y
 
 # Caminho do arquivo de teste
-TEST_FILE = parser/tests.py
+TEST_FILE = parser/tests/tests_ok.py # caminho pra rodar os testes que passam
+# TEST_FILE = parser/tests/tests_erro.py # caminho pra rodar os testes que dao erro
+# TEST_FILE = parser/tests/tests_extras.py # caminho pra rodar os testes mais complexos
 
 # Comandos
 all:
