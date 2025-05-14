@@ -24,7 +24,7 @@ extern char *yytext;
 
 %%
 
-program: /* Ta tratando comentario, msm que seja ignorado no sintatico */
+program: /* Trata comentario, msm que seja ignorado no parser */
     statements
     | program T_COMMENT
     | program T_BLOCK_COMMENT
@@ -38,18 +38,21 @@ statements:
     | statements compound_statement
     ;
 
+
 small_statement:
     assignment
     | flow_statement
     ;
 
-assignment:  /* Trata = e variacoes */
+
+assignment:  /* Trata = */
     T_IDENTIFIER T_EQUAL expression # = 1
     | T_IDENTIFIER T_EQ expression # == 1
     | T_IDENTIFIER T_EQUAL assignment # x = y = 1
     | T_IDENTIFIER T_PLUS T_EQUAL expression # x += 1
     | T_IDENTIFIER T_MINUS T_EQUAL expression # x -= 1
     ;
+
 
 flow_statement:
     T_PASS
@@ -58,16 +61,29 @@ flow_statement:
     | T_RETURN expression
     ;
 
+
 compound_statement:
     if_statement
     | while_statement
     | for_statement
     | function_def
     | class_def
+    | T_INDENT statements T_NEWLINE /* codigos genericos */
     ;
 
+
 if_statement:
+    # if
     T_IF expression T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
+    
+    # if-else
+    | T_IF expression T_COLON T_NEWLINE T_INDENT statements T_NEWLINE 
+      T_ELSE T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
+    
+    # if-elif-else
+    | T_IF expression T_COLON T_NEWLINE T_INDENT statements T_NEWLINE 
+      T_ELIF expression T_COLON T_NEWLINE T_INDENT statements T_NEWLINE 
+      T_ELSE T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
     ;
 
 while_statement:
@@ -85,6 +101,16 @@ function_def:
 class_def:
     T_CLASS T_IDENTIFIER T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
     ;
+
+T_INDENT statements T_NEWLINE
+    | T_IF expression T_COLON T_NEWLINE T_INDENT statements T_NEWLINE elif_clauses
+    ;
+
+params: /* def funcao(): */
+    /* empty */
+    | T_IDENTIFIER
+    | params T_COMMA T_IDENTIFIER
+    ;  
 
 expression:
     T_NUMBER
@@ -105,12 +131,30 @@ expression:
     | expression T_LE expression   /* <= */
     | expression T_GT expression   /* > */
     | expression T_GE expression   /* >= */
-    | T_LPAREN expression T_RPAREN
-    | T_LBRACKET list_items T_RBRACKET
-    | T_LBRACE dict_items T_RBRACE
+    | T_LPAREN expression T_RPAREN /* ( ) */
+    | T_LBRACKET list_items T_RBRACKET /* [] */
+    | T_LBRACE dict_items T_RBRACE /* {} */
     | T_IDENTIFIER T_LPAREN args T_RPAREN
+    | expression T_IF expression T_ELSE expression
 ;
 
+list_items: /* [1, 2, 3] */
+    /* empty */
+    | expression
+    | list_items T_COMMA expression
+    ;
+
+dict_items: /* {"chave": valor, "outra_chave": 42} */
+    /* empty */
+    | expression T_COLON expression
+    | dict_items T_COMMA expression T_COLON expression
+    ;
+
+args: /* funcao(arg1, arg2, arg3) */
+    /* empty */
+    | expression
+    | args T_COMMA expression
+    ;
 
 
 %%
