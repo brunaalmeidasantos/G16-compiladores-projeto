@@ -26,6 +26,14 @@ enum t_tokens {
 %%
 
 "="                        { printf("Operador '='\n"); return T_EQUAL; }
+"+="                       { return T_PLUS_EQUAL; }
+"-="                       { return T_MINUS_EQUAL; }
+"=="                       { return T_EQ; }
+"!="                       { return T_NE; }
+"<"                        { return T_LT; }
+"<="                       { return T_LE; }
+">"                        { return T_GT; }
+">="                       { return T_GE; }
 
 "("                        { printf("T_LPAREN\n"); return T_LPAREN; }
 ")"                        { printf("T_RPAREN\n"); return T_RPAREN; }

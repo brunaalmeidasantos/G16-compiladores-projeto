@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+void yyerror(const char *s);
 extern int yylex();
 extern char *yytext;
 %}
@@ -21,6 +22,18 @@ extern char *yytext;
 %token T_STAR T_PLUS T_OPTIONAL T_BRACE_RANGE
 %token T_EQ T_NE T_LT T_LE T_GT T_GE T_DEL
 %token T_COMMENT T_BLOCK_COMMENT
+%token T_MINUS
+%token T_PLUS_EQUAL T_MINUS_EQUAL
+%right T_EQUAL T_PLUS_EQUAL T_MINUS_EQUAL
+%left T_OR
+%left T_AND
+%left T_NOT
+%nonassoc T_EQ T_NE T_LT T_LE T_GT T_GE
+%nonassoc LOWER_THAN_ELSE
+%nonassoc T_ELSE
+%left T_PLUS T_MINUS
+%left T_STAR
+%right T_IF
 
 %%
 
@@ -32,7 +45,8 @@ program: /* Trata comentario, msm que seja ignorado no parser */
 
 
 statements:
-    small_statement T_NEWLINE
+    expression T_NEWLINE
+    | small_statement T_NEWLINE
     | statements small_statement T_NEWLINE
     | compound_statement
     | statements compound_statement
@@ -45,12 +59,10 @@ small_statement:
     ;
 
 
-assignment:  /* Trata = */
-    T_IDENTIFIER T_EQUAL expression # = 1
-    | T_IDENTIFIER T_EQ expression # == 1
-    | T_IDENTIFIER T_EQUAL assignment # x = y = 1
-    | T_IDENTIFIER T_PLUS T_EQUAL expression # x += 1
-    | T_IDENTIFIER T_MINUS T_EQUAL expression # x -= 1
+assignment:
+    T_IDENTIFIER T_EQUAL expression
+    | T_IDENTIFIER T_PLUS_EQUAL expression  %prec T_EQUAL
+    | T_IDENTIFIER T_MINUS_EQUAL expression %prec T_EQUAL
     ;
 
 
@@ -73,17 +85,22 @@ compound_statement:
 
 
 if_statement:
-    # if
-    T_IF expression T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
-    
-    # if-else
-    | T_IF expression T_COLON T_NEWLINE T_INDENT statements T_NEWLINE 
-      T_ELSE T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
-    
-    # if-elif-else
-    | T_IF expression T_COLON T_NEWLINE T_INDENT statements T_NEWLINE 
-      T_ELIF expression T_COLON T_NEWLINE T_INDENT statements T_NEWLINE 
-      T_ELSE T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
+    T_IF expression T_COLON suite elif_clauses else_clause
+    ;
+
+elif_clauses:
+    /* vazio */
+    | elif_clauses T_ELIF expression T_COLON suite
+    ;
+
+else_clause:
+    /* vazio */
+    | T_ELSE T_COLON suite
+    ;
+
+suite:
+    T_NEWLINE T_INDENT statements T_NEWLINE
+    | small_statement T_NEWLINE
     ;
 
 while_statement:
@@ -95,48 +112,90 @@ for_statement:
     ;
 
 function_def:
-    T_DEF T_IDENTIFIER T_LPAREN T_RPAREN T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
+    T_DEF T_IDENTIFIER T_LPAREN params T_RPAREN T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
     ;
 
 class_def:
     T_CLASS T_IDENTIFIER T_COLON T_NEWLINE T_INDENT statements T_NEWLINE
     ;
 
-T_INDENT statements T_NEWLINE
-    | T_IF expression T_COLON T_NEWLINE T_INDENT statements T_NEWLINE elif_clauses
+params:
+    /* vazio */
+    | param_list
     ;
 
-params: /* def funcao(): */
-    /* empty */
-    | T_IDENTIFIER
-    | params T_COMMA T_IDENTIFIER
-    ;  
+param_list:
+    T_IDENTIFIER
+    | param_list T_COMMA T_IDENTIFIER
+    ;
 
 expression:
-    T_NUMBER
+    ternary_expression
+    ;
+
+ternary_expression:
+    logical_or_expression T_IF expression T_ELSE expression
+    | logical_or_expression
+    ;
+
+logical_or_expression:
+    logical_and_expression
+    | logical_or_expression T_OR logical_and_expression
+    ;
+
+logical_and_expression:
+    equality_expression
+    | logical_and_expression T_AND equality_expression
+    ;
+
+equality_expression:
+    relational_expression
+    | equality_expression T_EQ relational_expression
+    | equality_expression T_NE relational_expression
+    ;
+
+relational_expression:
+    additive_expression
+    | relational_expression T_LT additive_expression
+    | relational_expression T_LE additive_expression
+    | relational_expression T_GT additive_expression
+    | relational_expression T_GE additive_expression
+    ;
+
+additive_expression:
+    multiplicative_expression
+    | additive_expression T_PLUS multiplicative_expression
+    | additive_expression T_MINUS multiplicative_expression
+    ;
+
+multiplicative_expression:
+    unary_expression
+    | multiplicative_expression T_STAR unary_expression
+    ;
+
+unary_expression:
+    postfix_expression
+    | T_NOT unary_expression
+    | T_MINUS unary_expression
+    ;
+
+postfix_expression:
+    primary
+    | postfix_expression T_LPAREN args T_RPAREN
+    | postfix_expression T_LBRACKET expression T_RBRACKET
+    ;
+
+primary:
+    T_IDENTIFIER
+    | T_NUMBER
     | T_STRING
-    | T_IDENTIFIER
     | T_TRUE
     | T_FALSE
     | T_NONE
-    | expression T_AND expression
-    | expression T_OR expression
-    | T_NOT expression
-    | expression T_PLUS expression /* + */
-    | expression T_MINUS expression /* - */
-    | expression T_STAR expression /* * */
-    | expression T_EQ expression   /* == */
-    | expression T_NE expression   /* != */
-    | expression T_LT expression   /* < */
-    | expression T_LE expression   /* <= */
-    | expression T_GT expression   /* > */
-    | expression T_GE expression   /* >= */
-    | T_LPAREN expression T_RPAREN /* ( ) */
-    | T_LBRACKET list_items T_RBRACKET /* [] */
-    | T_LBRACE dict_items T_RBRACE /* {} */
-    | T_IDENTIFIER T_LPAREN args T_RPAREN
-    | expression T_IF expression T_ELSE expression
-;
+    | T_LPAREN expression T_RPAREN
+    | T_LBRACKET list_items T_RBRACKET
+    | T_LBRACE dict_items T_RBRACE
+    ;
 
 list_items: /* [1, 2, 3] */
     /* empty */
@@ -164,7 +223,6 @@ int main() {
     return 0;
 }
 
-int yyerror(char *s) {
-    fprintf(stderr, "Erro de sintaxe próximo de: %s (token: %s)\n", s, yytext);
-    return 0;
+void yyerror(const char *s) {
+    fprintf(stderr, "Erro de sintaxe: %s (token: '%s')\n", s, yytext ? yytext : "(null)");
 }
