@@ -5,9 +5,6 @@ TARGET = compilador
 LEXER = lexer/lexer.l
 PARSER = parser/parser.y
 
-# Caminho do arquivo de teste
-TEST_FILE = parser/tests.py
-
 # Comandos
 all:
 	flex $(LEXER)
@@ -15,7 +12,10 @@ all:
 	gcc lex.yy.c parser.tab.c -o $(TARGET)
 
 run: all
-	./$(TARGET) < $(TEST_FILE)
+	./$(TARGET)
+
+test: all
+	python3 ./tests/test_runner.py
 
 clean:
 	rm -f lex.yy.c parser.tab.c parser.tab.h $(TARGET)
