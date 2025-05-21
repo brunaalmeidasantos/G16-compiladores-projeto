@@ -11,9 +11,9 @@ lex = os.path.abspath(os.path.join(base, "..", "lex"))
 
 # Lista de testes (nome do arquivo e se espera erro de sintaxe)
 testes_sintatico = [
-    ("tests_ok.py", False),
-    ("tests_erro.py", True),
-    ("tests_extras.py", False),
+    ("tests_sint_ok.py", False),
+    ("tests_sint_erro.py", True),
+    ("tests_sint_extras.py", False),
 ]
 
 testes_lexico = [
@@ -22,7 +22,7 @@ testes_lexico = [
 ]
 
 def testar(nome_arquivo, espera_erro):
-    caminho = os.path.join(base, nome_arquivo)
+    caminho = os.path.join(base,  nome_arquivo)
     print(f"\n📄 Testando {nome_arquivo} (espera erro: {espera_erro})")
 
     if not os.path.exists(caminho):
