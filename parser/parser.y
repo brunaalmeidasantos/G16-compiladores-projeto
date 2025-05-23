@@ -4,6 +4,7 @@
 void yyerror(const char *s);
 extern int yylex();
 extern char *yytext;
+int syntax_error_occurred = 0;
 %}
 
 %debug
@@ -37,6 +38,7 @@ extern char *yytext;
 
 %%
 
+program: /* Trata comentario, msm que seja ignorado no parser */
 program: /* Trata comentario, msm que seja ignorado no parser */
     statements
     | program T_COMMENT
@@ -218,11 +220,12 @@ args: /* funcao(arg1, arg2, arg3) */
 
 %%
 
-int main() {
-    yyparse();
-    return 0;
-}
-
 void yyerror(const char *s) {
     fprintf(stderr, "Erro de sintaxe: %s (token: '%s')\n", s, yytext ? yytext : "(null)");
+    syntax_error_occurred = 1; // Sinaliza o erro
+}
+
+int main() {
+    yyparse();
+    return syntax_error_occurred; // Retorna 0 se não houve erro, 1 se houve
 }
