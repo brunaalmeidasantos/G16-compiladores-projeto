@@ -15,8 +15,8 @@ enum t_tokens {
     T_IDENTIFIER,
     T_LPAREN, T_RPAREN, T_LBRACKET, T_RBRACKET, T_LBRACE, T_RBRACE,
     T_COMMA, T_COLON, T_SEMICOLON,
-    T_INDENT, T_NEWLINE,
-    T_NUMBER,
+    T_INDENT, T_NEWLINE, T_EQ, T_NE, T_GE, T_GT, T_LE, T_LT,
+    T_NUMBER, T_PLUS_EQUAL, T_MINUS_EQUAL,
     T_EQUAL
 };
 %}
@@ -97,4 +97,3 @@ yield                      { printf("T_YIELD\n"); return T_YIELD; }
 .                          { printf("Outro: %s\n", yytext); return *yytext; }
 
 %%
-
