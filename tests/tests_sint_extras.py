@@ -1,22 +1,15 @@
-# Testes extras com estruturas válidas mais elaboradas
+x = 10
+if x == 10:
+    resultado = 100
 
-# Função com condicional interna
-def mostrar():
-    if True:
-        return 1
-    return 2
-
-resultado = mostrar()
 print(resultado)
 
-# Função com parâmetros e chamada
-def somar(a, b):
+def somar(a, b): # Função com parâmetros e chamada
     return a + b
 
 print(somar(10, 20))
 
-# Função que chama outra função
-def dobro(n):
+def dobro(n): # Função que chama outra função
     return n * 2
 
 def processar(x):
@@ -24,8 +17,7 @@ def processar(x):
 
 print(processar(5))
 
-# Laços e condicionais dentro de função
-def contar_ate(n):
+def contar_ate(n):# Laços e condicionais dentro de função
     total = 0
     for i in range(n):
         total = total + 1
