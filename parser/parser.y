@@ -71,6 +71,7 @@ void add_symbol(char *name, int type) {
 maybe_newline:
       /* vazio */
     | T_NEWLINE
+    | T_NEWLINE maybe_newline
     ;
 
 program:
@@ -151,14 +152,24 @@ compound_statement:
     ;
 
 if_statement:
-    T_IF expression T_COLON T_NEWLINE suite
-    | T_IF expression T_COLON suite T_NEWLINE T_ELSE T_COLON T_NEWLINE suite T_NEWLINE
-    | T_IF expression T_COLON suite T_NEWLINE T_ELIF expression T_COLON suite T_NEWLINE
-    ;
+    T_IF expression T_COLON T_NEWLINE T_INDENT suite optional_elif_list optional_else
+;
+
+optional_elif_list:
+    /* vazio */
+    | optional_elif_list T_ELIF expression T_COLON T_NEWLINE T_INDENT suite
+;
+
+optional_else:
+    /* vazio */
+    | T_ELSE T_COLON T_NEWLINE T_INDENT suite
+;
+
 
 suite:
     T_INDENT statements
     | simple_statement
+    | compound_statement
     ;
 
 while_statement:
