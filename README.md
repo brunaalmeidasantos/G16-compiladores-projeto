@@ -2,30 +2,33 @@
 
 Repositório dedicado ao desenvolvimento do projeto do Grupo 16 para a disciplina Compiladores 1, ministrada pelo professor Sergio Freitas durante o 1º semestre de 2025, na Universidade de Brasília (UnB).
 
-
 ## Equipe
 |Integrante|Matrícula|
 |----------|---------|
-|Ana Luiz Hoffmann Ferreira|202015901|
+|Ana Luiza Hoffmann Ferreira|202015901|
 |Bruna Almeida Santos|170100626|
 |Italo Bruno Avelino da Silva Melo|190133813|
 |Matheus Barros do Nascimento|190126515|
 |Matheus Moreira Lopes Perillo|190093421|
 |Victor Augusto de Sousa Camara|221031238|
 
+---
 ## O projeto
 
 O projeto elaborado por nosso grupo consiste em um **compilador que traduz um subconjunto da linguagem Python para C**. A proposta é permitir que programas escritos em Python, com uma sintaxe e estruturas definidas previamente, possam ser convertidos para código C equivalente, mantendo sua lógica e funcionalidade.
 
-O compilador está sendo desenvolvido utilizando as ferramentas **Flex** e **Bison**, e segue as principais etapas de construção de um compilador:  
-- **Análise léxica**, responsável por identificar os *tokens* da linguagem;  
-- **Análise sintática**, que verifica a estrutura do código com base em uma gramática livre de contexto;  
-- **Análise semântica**, que valida o uso correto de variáveis, tipos e estruturas;  
+O compilador está sendo desenvolvido utilizando as ferramentas **Flex** e **Bison**, e segue as principais etapas de construção de um compilador:
+- **Análise léxica**, responsável por identificar os *tokens* da linguagem;
+- **Análise sintática**, que verifica a estrutura do código com base em uma gramática livre de contexto;
+- **Análise semântica**, que valida o uso correto de variáveis, tipos e estruturas;
 - **Geração de código**, que converte o programa Python para um código C funcional.
 
-<br>
+---
+## Escopo e Limitações
+É importante ressaltar que o presente compilador focará na tradução de um subconjunto específico da linguagem Python. Dentre as funcionalidades **não** contempladas neste projeto, destaca-se o tratamento de **orientação a objetos**. Construções como classes, objetos e herança não serão processadas pelo compilador.
 
-### Organização e Cronograma do Projeto
+---
+## Organização e Cronograma do Projeto
 
 A equipe está utilizando as metodologias ágeis **Scrum** e **Kanban** para organizar e acompanhar o desenvolvimento do projeto. As atividades são gerenciadas por meio de um quadro Kanban, que permite o acompanhamento contínuo das tarefas a fazer, em andamento e concluídas a cada Sprint. O projeto está dividido em **5 sprints**, cada uma com duração média de **duas semanas**; As Sprints podem ser visualizadas na aba _Projects_ do repositório.
 
@@ -48,9 +51,42 @@ O cronograma a seguir apresenta as datas de início e término de cada Sprint, b
 |**Entrega final do compilador**|27/06|
 |Apresentação final|30/06|
 
+---
+## Documentação
 
-<br>
+Toda a documentação referente ao projeto pode ser visualizada na pasta `./docs`.
 
-### Documentação
+---
+## Como Executar
 
-Toda a documentação referente ao projeto pode ser visualizada na pasta ./docs
+Para interagir com o projeto, navegue até o diretório raiz em seu terminal. Certifique-se de que possui as dependências necessárias instaladas: **Flex**, **Bison** e um compilador C (como o **GCC**).
+
+Os seguintes comandos `make` estão disponíveis:
+
+* **Compilar o projeto:**
+    ```bash
+    make all
+    ```
+    Ou simplesmente:
+    ```bash
+    make
+    ```
+    Este comando utiliza o Flex para gerar o analisador léxico (`lexer/lexer.l`), o Bison para gerar o analisador sintático (`parser/parser.y`) e o GCC para compilar os arquivos C gerados (`lex.yy.c`, `parser.tab.c`), criando o executável `compilador`.
+
+* **Compilar e executar o compilador:**
+    ```bash
+    make run
+    ```
+    Este comando primeiro executa as etapas de compilação (equivalente a `make all`) e, em seguida, roda o `./compilador`.
+
+* **Compilar e rodar os testes:**
+    ```bash
+    make test
+    ```
+    Este comando compila o projeto e depois executa o script de testes `python3 ./tests/test_runner.py`.
+
+* **Limpar arquivos gerados:**
+    ```bash
+    make clean
+    ```
+    Este comando remove os arquivos gerados durante a compilação (`lex.yy.c`, `parser.tab.c`, `parser.tab.h` e o executável `compilador`).
