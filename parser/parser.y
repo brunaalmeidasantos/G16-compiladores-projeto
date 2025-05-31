@@ -74,6 +74,13 @@ maybe_newline:
     | T_NEWLINE maybe_newline
     ;
 
+maybe_indent:
+      /* vazio */
+    | T_INDENT
+    | T_INDENT maybe_indent
+    ;
+
+
 program:
     statements
     ;
@@ -152,32 +159,32 @@ compound_statement:
     ;
 
 if_statement:
-    T_IF expression T_COLON T_NEWLINE T_INDENT suite optional_elif_list optional_else
+    T_IF expression T_COLON T_NEWLINE maybe_indent suite optional_elif_list optional_else
 ;
 
 optional_elif_list:
     /* vazio */
-    | optional_elif_list T_ELIF expression T_COLON T_NEWLINE T_INDENT suite
+    | optional_elif_list T_ELIF expression T_COLON T_NEWLINE maybe_indent suite
 ;
 
 optional_else:
     /* vazio */
-    | T_ELSE T_COLON T_NEWLINE T_INDENT suite
+    | T_ELSE T_COLON T_NEWLINE maybe_indent suite
 ;
 
 
 suite:
-    T_INDENT statements
+    maybe_indent statements
     | simple_statement
     | compound_statement
     ;
 
 while_statement:
-    T_WHILE expression T_COLON suite
+    T_WHILE expression T_COLON T_NEWLINE maybe_indent suite
     ;
 
 for_statement:
-    T_FOR T_IDENTIFIER T_IN expression T_COLON suite
+    T_FOR T_IDENTIFIER T_IN expression T_COLON T_NEWLINE maybe_indent suite
     ;
 
 function_def:
