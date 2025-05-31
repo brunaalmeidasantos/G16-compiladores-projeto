@@ -7,7 +7,7 @@ import os
 # Caminho base dos testes
 base = os.path.dirname(__file__)
 compilador = os.path.abspath(os.path.join(base, "..", "compilador"))
-lex = os.path.abspath(os.path.join(base, "..", "lex"))
+lex = os.path.abspath(os.path.join(base, "..", "lex.yy.c"))
 
 # Lista de testes (nome do arquivo e se espera erro de sintaxe)
 testes_sintatico = [

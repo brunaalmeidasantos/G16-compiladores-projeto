@@ -9,13 +9,17 @@ PARSER = parser/parser.y
 all:
 	flex $(LEXER)
 	bison -d $(PARSER)
-	gcc lex.yy.c parser.tab.c -o $(TARGET)
+	gcc lex.yy.c parser.tab.c ./src/Hash.c -o $(TARGET) -lfl
 
 run: all
 	./$(TARGET)
 
 test: all
 	python3 ./tests/test_runner.py
+
+test_hash: all
+	gcc ./tests/test_hash.c ./src/Hash.c -o ./tests/test_simbolos
+	./test_simbolos
 
 clean:
 	rm -f lex.yy.c parser.tab.c parser.tab.h $(TARGET)
