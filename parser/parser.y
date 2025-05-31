@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "./src/hash.h"
+
+HashTable* tabela_simbolos;
 
 #include "parser.tab.h"
 
@@ -11,7 +14,7 @@ extern FILE *yyin;
 extern int yylineno;
 
 void yyerror(const char *s) {
-    fprintf(stderr, "Erro de sintaxe\n");
+    fprintf(stderr, "Erro de sintaxe na linha %d: %s\n", yylineno, s);
 }
 
 typedef struct {
@@ -23,9 +26,17 @@ Symbol symbol_table[1000];
 int symbol_count = 0;
 
 void add_symbol(char *name, int type) {
-    symbol_table[symbol_count].name = strdup(name);
-    symbol_table[symbol_count].type = type;
-    symbol_count++;
+    if (symbol_count < 1000) {
+        symbol_table[symbol_count].name = strdup(name);
+        symbol_table[symbol_count].type = type;
+        symbol_count++;
+    }
+}
+
+void check_variable_declared(char *name) {
+    if (search(tabela_simbolos, name) == NULL) {
+        printf("Warning: Variável '%s' usada mas não declarada.\n", name);
+    }
 }
 %}
 
@@ -35,159 +46,311 @@ void add_symbol(char *name, int type) {
     double floatval;
 }
 
+%token <strval> ID TIPO T_STRING T_IDENTIFIER
+%token <intval> T_NUMBER T_TRUE T_FALSE
+
 %token T_PRINT T_RANGE
-%token T_STRING
 %token T_AND T_OR T_NOT
-%token T_FALSE T_NONE T_TRUE
+%token T_NONE
 %token T_AS T_ASSERT T_ASYNC T_AWAIT
 %token T_BREAK T_CLASS T_CONTINUE T_DEF T_DEL
 %token T_ELIF T_ELSE T_EXCEPT T_FINALLY T_FOR T_FROM T_GLOBAL
 %token T_IF T_IMPORT T_IN T_IS T_LAMBDA T_NONLOCAL
 %token T_PASS T_RAISE T_RETURN T_TRY T_WHILE T_WITH T_YIELD
-%token T_IDENTIFIER
 %token T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
 %token T_COMMA T_COLON T_SEMICOLON
-%token T_INDENT T_NEWLINE
-%token T_NUMBER
+%token T_INDENT T_DEDENT T_NEWLINE
 %token T_EQUAL T_RBAR T_LBAR T_PORCENT
 %token T_PLUS T_STAR T_OPTIONAL T_PLUS_EQUAL T_MINUS_EQUAL T_MINUS
 %token T_GE T_GT T_LE T_LT T_NE T_EQ
 %token T_BRACE_RANGE
 
-%type <intval> T_NUMBER T_TRUE T_FALSE
-%type <strval> T_STRING T_IDENTIFIER
-
-%nonassoc T_LPAREN T_RPAREN
-%nonassoc T_LBRACKET T_RBRACKET
-%nonassoc T_LBRACE T_RBRACE
-%nonassoc T_IS
-%nonassoc T_IN
+// Precedência (do menor para o maior)
 %right T_EQUAL
+%left T_OR
+%left T_AND
+%right T_NOT
+%left T_IN T_IS
+%left T_EQ T_NE T_LT T_LE T_GT T_GE
+%left T_PLUS T_MINUS
+%left T_STAR T_RBAR T_PORCENT
+%right UMINUS
+%left T_LPAREN T_RPAREN
 
 %start program
 
 %%
 
-maybe_newline:
-      /* vazio */
-    | T_NEWLINE
-    | T_NEWLINE maybe_newline
-    ;
 
+// somente Deus e o claude AI sabe como essa tabela hash ta funcionando - victor
 program:
-    statements
+    {
+        tabela_simbolos = create_table();
+        printf("Iniciando análise sintática...\n");
+    }
+    file_input
+    {
+        printf("Análise sintática concluída.\n");
+    }
     ;
 
-statements:
+file_input:
     /* empty */
-    | statements statement
+    | file_input stmt
+    | file_input NEWLINE
+    | file_input declaration
     ;
 
-statement:
-      simple_statement
-    | compound_statement
+NEWLINE:
+    T_NEWLINE
     ;
 
-simple_statement:
-      expression maybe_newline
-    | assignment maybe_newline
-    | T_RETURN expression maybe_newline
-    | T_RETURN maybe_newline
-    | T_PASS maybe_newline
-    | T_BREAK maybe_newline
-    | T_CONTINUE maybe_newline
-    | T_PRINT T_LPAREN expression T_RPAREN maybe_newline
-    ;
-
-assignment:
-    T_IDENTIFIER T_EQUAL expression
+declaration:
+    TIPO ID
     {
-        add_symbol($1, 0);
+        if (search(tabela_simbolos, $2) != NULL) {
+            printf("Erro: Variável '%s' já declarada.\n", $2);
+        } else {
+            insert(tabela_simbolos, $2, $1);
+            printf("Declarada variável: %s do tipo %s\n", $2, $1);
+        }
+        free($2);
         free($1);
     }
-    | T_IDENTIFIER ',' T_IDENTIFIER T_EQUAL expression ',' expression
+    ;
+
+stmt:
+    simple_stmt
+    | compound_stmt
+    ;
+
+simple_stmt:
+    small_stmt NEWLINE
+    | small_stmt T_SEMICOLON NEWLINE
+    ;
+
+small_stmt:
+    expr_stmt
+    | print_stmt
+    | flow_stmt
+    ;
+
+expr_stmt:
+    testlist_star_expr
+    | testlist_star_expr T_EQUAL testlist_star_expr
     {
-        add_symbol($1, 0);
-        add_symbol($3, 0);
-        free($1);
-        free($3);
+        // Tratamento de atribuição será feito no nível semântico
+        printf("Atribuição detectada\n");
     }
     ;
 
-expression:
-      T_NUMBER
+testlist_star_expr:
+    test
+    | testlist_star_expr T_COMMA test
+    ;
+
+print_stmt:
+    T_PRINT T_LPAREN test T_RPAREN
+    {
+        printf("Comando print detectado\n");
+    }
+    ;
+
+flow_stmt:
+    T_BREAK
+    | T_CONTINUE
+    | return_stmt
+    | T_PASS
+    ;
+
+return_stmt:
+    T_RETURN
+    | T_RETURN testlist
+    ;
+
+testlist:
+    test
+    | testlist T_COMMA test
+    ;
+
+test:
+    or_test
+    | or_test T_IF or_test T_ELSE test
+    ;
+
+or_test:
+    and_test
+    | or_test T_OR and_test
+    ;
+
+and_test:
+    not_test
+    | and_test T_AND not_test
+    ;
+
+not_test:
+    T_NOT not_test
+    | comparison
+    ;
+
+comparison:
+    expr
+    | comparison comp_op expr
+    ;
+
+comp_op:
+    T_LT | T_GT | T_EQ | T_GE | T_LE | T_NE
+    | T_IN | T_NOT T_IN | T_IS | T_IS T_NOT
+    ;
+
+expr:
+    arith_expr
+    ;
+
+arith_expr:
+    term
+    | arith_expr T_PLUS term
+    | arith_expr T_MINUS term
+    ;
+
+term:
+    factor
+    | term T_STAR factor
+    | term T_RBAR factor
+    | term T_PORCENT factor
+    ;
+
+factor:
+    T_PLUS factor
+    | T_MINUS factor %prec UMINUS
+    | power
+    ;
+
+power:
+    atom_expr
+    ;
+
+atom_expr:
+    atom
+    | atom_expr trailer
+    ;
+
+atom:
+    T_IDENTIFIER
+    {
+        check_variable_declared($1);
+        free($1);
+    }
+    | T_NUMBER
     | T_STRING
-    | T_IDENTIFIER
+    {
+        free($1);
+    }
     | T_TRUE
     | T_FALSE
     | T_NONE
-    | expression T_AND expression
-    | expression T_OR expression
-    | T_NOT expression
-    | expression T_PLUS expression
-    | expression T_MINUS expression
-    | expression T_STAR expression
-    | expression T_RBAR expression
-    | expression T_PORCENT expression
-    | expression T_GT expression
-    | expression T_LT expression
-    | expression T_IS expression
-    | expression T_EQ expression
-    | T_LPAREN expression T_RPAREN
-    | T_IDENTIFIER T_LPAREN arglist T_RPAREN
-    | T_RANGE T_LPAREN expression T_RPAREN
+    | T_LPAREN test T_RPAREN
+    | T_RANGE T_LPAREN test T_RPAREN
+    ;
+
+trailer:
+    T_LPAREN arglist T_RPAREN
+    | T_LBRACKET subscriptlist T_RBRACKET
+    ;
+
+subscriptlist:
+    subscript
+    | subscriptlist T_COMMA subscript
+    ;
+
+subscript:
+    test
     ;
 
 arglist:
     /* empty */
-    | expression
-    | arglist T_COMMA expression
+    | argument
+    | arglist T_COMMA argument
     ;
 
-compound_statement:
-      if_statement
-    | while_statement
-    | for_statement
-    | function_def
+argument:
+    test
     ;
 
-if_statement:
-    T_IF expression T_COLON T_NEWLINE T_INDENT suite optional_elif_list optional_else
-;
-
-optional_elif_list:
-    /* vazio */
-    | optional_elif_list T_ELIF expression T_COLON T_NEWLINE T_INDENT suite
-;
-
-optional_else:
-    /* vazio */
-    | T_ELSE T_COLON T_NEWLINE T_INDENT suite
-;
-
-
-suite:
-    T_INDENT statements
-    | simple_statement
-    | compound_statement
+compound_stmt:
+    if_stmt
+    | while_stmt
+    | for_stmt
+    | funcdef
     ;
 
-while_statement:
-    T_WHILE expression T_COLON suite
+if_stmt:
+    T_IF test T_COLON suite elif_part else_part
     ;
 
-for_statement:
-    T_FOR T_IDENTIFIER T_IN expression T_COLON suite
+elif_part:
+    /* empty */
+    | elif_part T_ELIF test T_COLON suite
     ;
 
-function_def:
-    T_DEF T_IDENTIFIER T_LPAREN parameters T_RPAREN T_COLON maybe_newline suite
+else_part:
+    /* empty */
+    | T_ELSE T_COLON suite
+    ;
+
+while_stmt:
+    T_WHILE test T_COLON suite
+    ;
+
+for_stmt:
+    T_FOR T_IDENTIFIER T_IN testlist T_COLON suite
+    {
+        if (search(tabela_simbolos, $2) == NULL) {
+            insert(tabela_simbolos, $2, "auto");
+            printf("Variável de loop '%s' autodeclarada\n", $2);
+        }
+        add_symbol($2, 0);
+        free($2);
+    }
+    ;
+
+funcdef:
+    T_DEF T_IDENTIFIER T_LPAREN parameters T_RPAREN T_COLON suite
+    {
+        insert(tabela_simbolos, $2, "function");
+        printf("Função '%s' definida\n", $2);
+        add_symbol($2, 1);
+        free($2);
+    }
     ;
 
 parameters:
     /* empty */
-    | T_IDENTIFIER
-    | parameters T_COMMA T_IDENTIFIER
+    | varargslist
+    ;
+
+varargslist:
+    fpdef
+    | varargslist T_COMMA fpdef
+    ;
+
+fpdef:
+    T_IDENTIFIER
+    {
+        insert(tabela_simbolos, $1, "parameter");
+        add_symbol($1, 0);
+        free($1);
+    }
+    ;
+
+suite:
+    simple_stmt
+    | NEWLINE T_INDENT stmt_list T_DEDENT
+    ;
+
+stmt_list:
+    stmt
+    | stmt_list stmt
     ;
 
 %%
@@ -196,15 +359,33 @@ int main(int argc, char **argv) {
     if (argc > 1) {
         yyin = fopen(argv[1], "r");
         if (!yyin) {
-            fprintf(stderr, "Erro ao abrir arquivo\n");
+            fprintf(stderr, "Erro ao abrir arquivo: %s\n", argv[1]);
             return 1;
         }
     }
 
+    printf("Iniciando compilação...\n");
     int result = yyparse();
+
+    if (result == 0) {
+        printf("Compilação bem-sucedida!\n");
+        printf("Total de símbolos: %d\n", symbol_count);
+    } else {
+        printf("Compilação falhou.\n");
+    }
 
     if (argc > 1) {
         fclose(yyin);
+    }
+
+    // Cleanup
+    if (tabela_simbolos) {
+        free_table(tabela_simbolos);
+    }
+
+    // Liberar tabela de símbolos
+    for (int i = 0; i < symbol_count; i++) {
+        free(symbol_table[i].name);
     }
 
     return result;
