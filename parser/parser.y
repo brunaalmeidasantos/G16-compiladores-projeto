@@ -97,19 +97,17 @@ program:
 file_input:
     /* empty */
     | file_input stmt
-    | file_input NEWLINE
+    | file_input T_NEWLINE
     | file_input declaration
     ;
     
 maybe_indent:
       /* vazio */
-    | T_INDENT
     | T_INDENT maybe_indent
     ;
 
 maybe_newline:
       /* vazio */
-    | T_NEWLINE
     | T_NEWLINE maybe_newline
     ;
 
@@ -144,10 +142,10 @@ small_stmt:
     ;
 
 compound_stmt:
-    maybe_newline if_stmt
-    | maybe_newline while_stmt
-    | maybe_newline for_stmt
-    | maybe_newline funcdef
+    maybe_newline maybe_indent if_stmt
+    | maybe_newline maybe_indent while_stmt
+    | maybe_newline maybe_indent for_stmt
+    | maybe_newline maybe_indent funcdef
     ;
 
 expr_stmt:
@@ -172,15 +170,17 @@ print_stmt:
     ;
 
 flow_stmt:
-    T_BREAK
-    | T_CONTINUE
-    | return_stmt
-    | T_PASS
+    maybe_indent T_BREAK
+    | maybe_indent T_CONTINUE
+    | maybe_indent T_PASS
+    | maybe_indent return_stmt
     ;
 
 return_stmt:
     T_RETURN
     | T_RETURN testlist
+    | T_RETURN T_IDENTIFIER
+    | T_RETURN T_NUMBER
     ;
 
 testlist:
@@ -215,17 +215,28 @@ comparison:
 
 comp_op:
     T_LT | T_GT | T_EQ | T_GE | T_LE | T_NE
-    | T_IN | T_NOT T_IN | T_IS | T_IS T_NOT
+    | T_IN | T_NOT T_IN | T_IS | T_NOT
     ;
 
 expr:
     arith_expr
+    | comparison_expr
     ;
 
 arith_expr:
     term
     | arith_expr T_PLUS term
     | arith_expr T_MINUS term
+    | arith_expr T_PLUS_EQUAL term
+    | arith_expr T_MINUS_EQUAL term
+    ;
+
+comparison_expr:
+    | arith_expr T_EQ term
+    | arith_expr T_GT term
+    | arith_expr T_GE term
+    | arith_expr T_LT term
+    | arith_expr T_LE term
     ;
 
 term:
@@ -266,6 +277,7 @@ atom:
     | T_NONE
     | T_LPAREN test T_RPAREN
     | T_RANGE T_LPAREN test T_RPAREN
+    | maybe_indent T_IDENTIFIER T_EQUAL arith_expr
     ;
 
 trailer:
@@ -293,12 +305,12 @@ argument:
     ;
     
 if_stmt:
-    T_IF expression T_COLON T_NEWLINE maybe_indent suite optional_elif_list optional_else
+    T_IF expr T_COLON T_NEWLINE maybe_indent suite optional_elif_list optional_else
     ;
     
 optional_elif_list:
     /* vazio */
-    | optional_elif_list T_ELIF expression T_COLON T_NEWLINE maybe_indent suite
+    | optional_elif_list T_ELIF expr T_COLON T_NEWLINE maybe_indent suite
 ;
 
 optional_else:
@@ -317,11 +329,11 @@ else_part:
     ;
 
 while_stmt:
-    T_WHILE expression T_COLON T_NEWLINE maybe_indent suite
+    T_WHILE expr T_COLON T_NEWLINE maybe_indent suite
     ;
 
 for_stmt:
-    T_FOR T_IDENTIFIER T_IN expression T_COLON T_NEWLINE maybe_indent suite
+    T_FOR T_IDENTIFIER T_IN expr T_COLON T_NEWLINE maybe_indent suite
     {
         if (search(tabela_simbolos, $2) == NULL) {
             insert(tabela_simbolos, $2, "auto");
@@ -333,7 +345,7 @@ for_stmt:
     ;
 
 funcdef:
-    T_DEF T_IDENTIFIER T_LPAREN parameters T_RPAREN T_COLON suite
+    T_DEF T_IDENTIFIER T_LPAREN parameters T_RPAREN T_COLON T_NEWLINE suite
     {
         insert(tabela_simbolos, $2, "function");
         printf("Função '%s' definida\n", $2);
@@ -362,9 +374,9 @@ fpdef:
     ;
 
 suite:
-    maybe_indent statements
-    | simple_statement
-    | compound_statement
+    maybe_indent stmt
+    | maybe_indent simple_stmt
+    | maybe_indent compound_stmt
     ;
 
 stmt_list:

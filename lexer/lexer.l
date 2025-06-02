@@ -29,6 +29,7 @@ void print_simple_token(const char* token_name) {
 ">"                        { print_simple_token("T_GT"); return T_GT; }
 ">="                       { print_simple_token("T_GE"); return T_GE; }
 "*"                        { print_simple_token("T_STAR"); return T_STAR; }
+"-"                        { print_simple_token("T_MINUS"); return T_MINUS; }
 "+"                        { print_simple_token("T_PLUS"); return T_PLUS; }
 "?"                        { print_simple_token("T_OPTIONAL"); return T_OPTIONAL; }
 "\\"                        { print_simple_token("T_LBAR"); return T_LBAR; }
