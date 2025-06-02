@@ -80,9 +80,9 @@ void check_variable_declared(char *name) {
 %start program
 
 %%
-
-
+    
 // somente Deus e o claude AI sabe como essa tabela hash ta funcionando - victor
+
 program:
     {
         tabela_simbolos = create_table();
@@ -97,12 +97,18 @@ program:
 file_input:
     /* empty */
     | file_input stmt
-    | file_input NEWLINE
+    | file_input T_NEWLINE
     | file_input declaration
     ;
+    
+maybe_indent:
+      /* vazio */
+    | T_INDENT maybe_indent
+    ;
 
-NEWLINE:
-    T_NEWLINE
+maybe_newline:
+      /* vazio */
+    | T_NEWLINE maybe_newline
     ;
 
 declaration:
@@ -125,14 +131,21 @@ stmt:
     ;
 
 simple_stmt:
-    small_stmt NEWLINE
-    | small_stmt T_SEMICOLON NEWLINE
+    small_stmt T_NEWLINE
+    | small_stmt T_SEMICOLON T_NEWLINE
     ;
 
 small_stmt:
-    expr_stmt
-    | print_stmt
-    | flow_stmt
+    maybe_newline expr_stmt
+    | maybe_newline print_stmt
+    | maybe_newline flow_stmt
+    ;
+
+compound_stmt:
+    maybe_newline maybe_indent if_stmt
+    | maybe_newline maybe_indent while_stmt
+    | maybe_newline maybe_indent for_stmt
+    | maybe_newline maybe_indent funcdef
     ;
 
 expr_stmt:
@@ -157,15 +170,17 @@ print_stmt:
     ;
 
 flow_stmt:
-    T_BREAK
-    | T_CONTINUE
-    | return_stmt
-    | T_PASS
+    maybe_indent T_BREAK
+    | maybe_indent T_CONTINUE
+    | maybe_indent T_PASS
+    | maybe_indent return_stmt
     ;
 
 return_stmt:
     T_RETURN
     | T_RETURN testlist
+    | T_RETURN T_IDENTIFIER
+    | T_RETURN T_NUMBER
     ;
 
 testlist:
@@ -200,17 +215,28 @@ comparison:
 
 comp_op:
     T_LT | T_GT | T_EQ | T_GE | T_LE | T_NE
-    | T_IN | T_NOT T_IN | T_IS | T_IS T_NOT
+    | T_IN | T_NOT T_IN | T_IS | T_NOT
     ;
 
 expr:
     arith_expr
+    | comparison_expr
     ;
 
 arith_expr:
     term
     | arith_expr T_PLUS term
     | arith_expr T_MINUS term
+    | arith_expr T_PLUS_EQUAL term
+    | arith_expr T_MINUS_EQUAL term
+    ;
+
+comparison_expr:
+    | arith_expr T_EQ term
+    | arith_expr T_GT term
+    | arith_expr T_GE term
+    | arith_expr T_LT term
+    | arith_expr T_LE term
     ;
 
 term:
@@ -251,6 +277,7 @@ atom:
     | T_NONE
     | T_LPAREN test T_RPAREN
     | T_RANGE T_LPAREN test T_RPAREN
+    | maybe_indent T_IDENTIFIER T_EQUAL arith_expr
     ;
 
 trailer:
@@ -276,17 +303,20 @@ arglist:
 argument:
     test
     ;
-
-compound_stmt:
-    if_stmt
-    | while_stmt
-    | for_stmt
-    | funcdef
-    ;
-
+    
 if_stmt:
-    T_IF test T_COLON suite elif_part else_part
+    T_IF expr T_COLON T_NEWLINE maybe_indent suite optional_elif_list optional_else
     ;
+    
+optional_elif_list:
+    /* vazio */
+    | optional_elif_list T_ELIF expr T_COLON T_NEWLINE maybe_indent suite
+;
+
+optional_else:
+    /* vazio */
+    | T_ELSE T_COLON T_NEWLINE maybe_indent suite
+;
 
 elif_part:
     /* empty */
@@ -299,11 +329,11 @@ else_part:
     ;
 
 while_stmt:
-    T_WHILE test T_COLON suite
+    T_WHILE expr T_COLON T_NEWLINE maybe_indent suite
     ;
 
 for_stmt:
-    T_FOR T_IDENTIFIER T_IN testlist T_COLON suite
+    T_FOR T_IDENTIFIER T_IN expr T_COLON T_NEWLINE maybe_indent suite
     {
         if (search(tabela_simbolos, $2) == NULL) {
             insert(tabela_simbolos, $2, "auto");
@@ -315,7 +345,7 @@ for_stmt:
     ;
 
 funcdef:
-    T_DEF T_IDENTIFIER T_LPAREN parameters T_RPAREN T_COLON suite
+    T_DEF T_IDENTIFIER T_LPAREN parameters T_RPAREN T_COLON T_NEWLINE suite
     {
         insert(tabela_simbolos, $2, "function");
         printf("Função '%s' definida\n", $2);
@@ -344,8 +374,9 @@ fpdef:
     ;
 
 suite:
-    simple_stmt
-    | NEWLINE T_INDENT stmt_list T_DEDENT
+    maybe_indent stmt
+    | maybe_indent simple_stmt
+    | maybe_indent compound_stmt
     ;
 
 stmt_list:

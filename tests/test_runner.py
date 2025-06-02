@@ -7,7 +7,7 @@ import os
 # Caminho base dos testes
 base = os.path.dirname(__file__)
 compilador = os.path.abspath(os.path.join(base, "..", "compilador"))
-lex = os.path.abspath(os.path.join(base, "..", "lex.yy.c"))
+lex = os.path.abspath(os.path.join(base, "..", "#lex.yy.c")) # só testar o léxico se estiver sozinho e com main (remover main do parser e montar apenas o lex.yy.cc). Remover a # do link
 
 # Lista de testes (nome do arquivo e se espera erro de sintaxe)
 testes_sintatico = [
