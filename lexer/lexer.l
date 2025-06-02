@@ -49,12 +49,30 @@ void print_simple_token(const char* token_name) {
 \{[0-9]+,\}                { print_simple_token("T_BRACE_RANGE"); return T_BRACE_RANGE; }
 \{[0-9]+,[0-9]+\}          { print_simple_token("T_BRACE_RANGE"); return T_BRACE_RANGE; }
 
-\"([^\"\\]|\\.)*\"          { yylval.strval = strdup(yytext); 
-                             print_token("T_STRING", yytext); 
-                             return T_STRING; }
-\'([^\'\\]|\\.)*\'          { yylval.strval = strdup(yytext); 
-                             print_token("T_STRING", yytext); 
-                             return T_STRING; }
+\'([^\\\n']|\\.)*\' {
+    yylval.strval = strdup(yytext);
+    print_token("T_STRING", yytext);
+    return T_STRING;
+}
+
+\"([^\\\n"]|\\.)*\" {
+    yylval.strval = strdup(yytext);
+    print_token("T_STRING", yytext);
+    return T_STRING;
+}
+
+"\'\'\'"([^\\]|\\.|\\\n)*?"\'\'\'" {
+    yylval.strval = strdup(yytext);
+    print_token("T_STRING", yytext);
+    return T_STRING;
+}
+
+"\"\"\""([^\\]|\\.|\\\n)*?"\"\"\"" {
+    yylval.strval = strdup(yytext);
+    print_token("T_STRING", yytext);
+    return T_STRING;
+}
+
 
 "and"                      { print_simple_token("T_AND"); return T_AND; }
 "or"                       { print_simple_token("T_OR"); return T_OR; }

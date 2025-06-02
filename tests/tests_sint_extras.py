@@ -30,3 +30,9 @@ contador = 3
 while contador > 0:
     print(mostrar())
     contador = contador - 1
+
+print('''
+    oioi string
+    com múltiplas
+    linhas
+''')
