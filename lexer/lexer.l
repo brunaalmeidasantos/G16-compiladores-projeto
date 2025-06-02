@@ -98,7 +98,11 @@ void print_simple_token(const char* token_name) {
                              return T_NUMBER; }
 [a-zA-Z_][a-zA-Z0-9_]*     { yylval.strval = strdup(yytext); 
                              print_token("T_IDENTIFIER", yytext); 
-                             return T_IDENTIFIER; }
+                             return T_IDENTIFIER;
+                             if (strcmp(yytext, "int") == 0 || strcmp(yytext, "float") == 0)
+                                return TIPO;
+                                else
+                                return ID; }
 
 #[^\n]*                    { /* ignora comentários */ }
 
