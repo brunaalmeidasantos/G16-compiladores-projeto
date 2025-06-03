@@ -2,16 +2,12 @@
 #ifndef SEMANTICO_H
 #define SEMANTICO_H
 
-// Inicializa a estrutura de símbolos
-void inicializar_tabela();
+void inicializar_tabela_simbolos();
+void finalizar_tabela_simbolos();
 
-// Registra uma nova variável na tabela de símbolos
-void adicionar_variavel(const char *nome);
+void declarar_variavel(const char* nome);
+int verificar_variavel_declarada(const char* nome);
 
-// Verifica se uma variável já foi declarada
-int variavel_declarada(const char *nome);
-
-// Libera a memória usada pela tabela de símbolos
-void limpar_tabela();
+void erro_semantico(const char* mensagem);
 
 #endif

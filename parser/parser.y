@@ -14,7 +14,7 @@ extern int yyparse();
 extern FILE *yyin;
 extern int yylineno;
 
-// === OTIMIZAÇÃO: Error Recovery Melhorado === (teste)
+// === OTIMIZAÇÃO: Error Recovery Melhorado ===
 static int error_count = 0;
 static int max_errors = 50; // Limite de erros antes de parar
 
@@ -446,4 +446,39 @@ int main(int argc, char **argv) {
     }
 
     return result;
+}
+
+stmt:
+    T_IDENTIFIER '=' expr T_NEWLINE {
+        adicionar_variavel($1);
+        $$ = NULL;
+    }
+  | expr T_NEWLINE
+  ;
+
+
+expr:
+    T_IDENTIFIER {
+        if (!variavel_declarada($1)) {
+            printf("Erro semântico: variável '%s' não declarada.\n", $1);
+            exit(1);
+        }
+        $$ = NULL;
+    }
+  | T_NUMBER {
+        $$ = NULL;
+    }
+  | expr '+' expr {
+        $$ = NULL;
+    }
+  | expr '-' expr {
+        $$ = NULL;
+    }
+  ;
+
+  int main(void) {
+    inicializar_tabela_simbolos();
+    yyparse();
+    finalizar_tabela_simbolos();
+    return 0;
 }
