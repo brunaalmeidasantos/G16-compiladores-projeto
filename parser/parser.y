@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "./src/hash.h"
+#include "./semantico/semantico.h"
 
 HashTable* tabela_simbolos;
 
@@ -13,7 +14,7 @@ extern int yyparse();
 extern FILE *yyin;
 extern int yylineno;
 
-// === OTIMIZAÇÃO: Error Recovery Melhorado ===
+// === OTIMIZAÇÃO: Error Recovery Melhorado === (teste)
 static int error_count = 0;
 static int max_errors = 50; // Limite de erros antes de parar
 
@@ -394,6 +395,19 @@ stmt_list:
     stmt
     | stmt_list stmt
     ;
+
+    declaracao_var:
+    T_IDENTIFIER {
+        adicionar_variavel($1);
+    };
+
+uso_var:
+    T_IDENTIFIER {
+        if (!variavel_declarada($1)) {
+            printf("Erro semântico: variável '%s' não declarada.\n", $1);
+            exit(1);
+        }
+    };
 
 %%
 

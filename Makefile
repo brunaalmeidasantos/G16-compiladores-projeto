@@ -9,7 +9,7 @@ PARSER = parser/parser.y
 all:
 	flex $(LEXER)
 	bison -d $(PARSER)
-	gcc lex.yy.c parser.tab.c ./src/Hash.c -o $(TARGET) -lfl
+	gcc lex.yy.c parser.tab.c semantico/semantico.c -o $(TARGET)
 
 run: all
 	./$(TARGET)
