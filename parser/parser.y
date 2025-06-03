@@ -13,7 +13,18 @@ extern int yyparse();
 extern FILE *yyin;
 extern int yylineno;
 
+// === OTIMIZAÇÃO: Error Recovery Melhorado ===
+static int error_count = 0;
+static int max_errors = 50; // Limite de erros antes de parar
+
 void yyerror(const char *s) {
+    error_count++;
+
+    if (error_count >= max_errors) {
+        fprintf(stderr, "Muitos erros encontrados. Parando compilação.\n");
+        exit(1);
+    }
+
     fprintf(stderr, "Erro de sintaxe na linha %d: %s\n", yylineno, s);
 }
 
@@ -405,7 +416,8 @@ int main(int argc, char **argv) {
         printf("Compilação falhou.\n");
     }
 
-    if (argc > 1) {
+    // === OTIMIZAÇÃO: Cleanup mais eficiente ===
+    if (yyin && argc > 1) {
         fclose(yyin);
     }
 
