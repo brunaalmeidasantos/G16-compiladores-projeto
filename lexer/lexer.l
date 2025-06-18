@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "parser.tab.h"
+#include "../ast/ast.h"
+#include "../parser/parser.tab.h"
 
 int line_num = 1;
 

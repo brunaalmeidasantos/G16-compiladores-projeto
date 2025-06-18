@@ -5,11 +5,14 @@ TARGET = compilador
 LEXER = lexer/lexer.l
 PARSER = parser/parser.y
 
+# Arquivos fonte
+SRC_FILES = src/Hash.c src/globals.c ast/ast.c
+
 # Comandos
 all:
 	flex $(LEXER)
 	bison -d $(PARSER)
-	gcc lex.yy.c parser.tab.c ./src/Hash.c -o $(TARGET) -lfl
+	gcc -I. -I./ast -I./src lex.yy.c parser.tab.c $(SRC_FILES) -o $(TARGET) -lfl
 
 run: all
 	./$(TARGET)
@@ -19,7 +22,12 @@ test: all
 
 test_hash: all
 	gcc ./tests/test_hash.c ./src/Hash.c -o ./tests/test_simbolos
-	./test_simbolos
+	./tests/test_simbolos
+
+test_ast: all
+	gcc ./test_ast.c ./ast/ast.c -o ./test_ast
+	./test_ast
 
 clean:
 	rm -f lex.yy.c parser.tab.c parser.tab.h $(TARGET)
+	rm -f ./tests/test_simbolos ./test_ast

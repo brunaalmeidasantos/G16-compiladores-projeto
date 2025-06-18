@@ -79,6 +79,17 @@ NoAST *criarNoWhile(NoAST *condicao, NoAST *corpo) {
     return no;
 }
 
+NoAST *criarNoFor(char *var, NoAST *iteravel, NoAST *corpo) {
+    NoAST *no = malloc(sizeof(NoAST));
+    no->operador = 'L'; // 'L' para for loop
+    no->tipo = TIPO_NONE; // Loops não retornam valor
+    strncpy(no->nome, var, 31);
+    no->nome[31] = '\0';
+    no->esquerda = iteravel;
+    no->direita = corpo;
+    return no;
+}
+
 NoAST *criarNoAtribuicao(char *nome, NoAST *valor) {
     NoAST *no = malloc(sizeof(NoAST));
     no->operador = '='; // Operador de atribuição
