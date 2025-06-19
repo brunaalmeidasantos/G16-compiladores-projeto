@@ -2,15 +2,15 @@
 
 ## O que é?
 
-O analisador léxico, por vezes chamado de *scanner*, é a primeira etapa de um compilador ou interpretador. Ele lê o código-fonte como texto bruto e o divide em unidades chamadas de tokens. Os tokens, por sua vez, são grupos de caracteres que têm um significado na linguagem. Exemplos de tokens são operadores (+, =, ==).
+O [analisador léxico](./lexer.l), por vezes chamado de *scanner*, é a primeira etapa de um compilador ou interpretador. Ele lê o código-fonte como texto bruto e o divide em unidades chamadas de tokens. Os tokens, por sua vez, são grupos de caracteres que têm um significado na linguagem. Exemplos de tokens são operadores (+, =, ==).
 
 ## Como funciona?
 
-O analisador léxico criado para esse trabalho funciona conforme se segue:
+O [analisador léxico](./lexer.l) criado para esse trabalho funciona conforme se segue:
 
 1. Lê o código fonte, caractere por caractere;
 2. Ignora fatores irrelevantes, como comentários;
-3. Agrupa os caracteres conforme os tokens definidos por regras elaboradas com regex;
+3. Agrupa os caracteres conforme os tokens definidos por regras elaboradas com o uso de regex;
 4. Realiza a classificação de cada token (T_IDENTIFIER, T_NUMBER, T_STRING, e etc);
 5. Entrega os tokens para o [analisador sintático](../parser/parser.y).
 
@@ -38,9 +38,9 @@ T_RPAREN
 
 ## Explicando o código
 
-O trecho abaixo está entre ```%{}%```, indicando que é um código C que deve ser copiado diretamente para o início do arquivo C gerado pelo flex. Se trata de um bloco de configurações e definições iniciais, que pode conter inclusão de bibliotecas, declaração de variáveis globais, funções auxiliares, constantes e outros.
+O trecho abaixo está entre ```%{}%```, indicando que é um código C que deve ser inserido diretamente no início do arquivo C gerado pelo *flex*. Se trata de um bloco de configurações e definições iniciais, que pode conter inclusão de bibliotecas, declaração de variáveis globais, funções auxiliares, constantes e outros.
 
-No caso desse código em específico, incluímos bibliotecas, declaramos a variável line_num (linha inicial lida) e duas funções para printar os tokens que o programa irá encontrar. A função *print_simple_token* imprime tokens sem valor associado (ex: T_IF). Já a função *print_token* imprime tokens com valor associado (ex: T_NUMBER: 10).
+No caso desse código em específico, incluímos bibliotecas, declaramos a variável ```line_num``` (linha inicial lida) e duas funções para printar os tokens que o programa irá encontrar. A função ```print_simple_token()``` imprime tokens sem valor associado (ex: ```T_IF```). Já a função ```print_token()``` imprime tokens com valor associado (ex: ```T_NUMBER: 10```).
 
 ```c
 %{
@@ -61,7 +61,7 @@ void print_simple_token(const char* token_name) {
 %}
 ```
 
-A linha de código abaixo desativa a necessidade de definir yywrap() e desativa funções padrão de entrada e saída, útil ao realizar a integração com o *parser*.
+A linha de código abaixo desativa a necessidade de definir ```yywrap()``` e desativa funções padrão de entrada e saída, útil ao realizar a integração com o *parser*.
 
 ```flex
 %option noyywrap nounput noinput
