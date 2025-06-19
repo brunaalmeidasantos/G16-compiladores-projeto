@@ -15,7 +15,7 @@ extern int yylineno;
 
 // === OTIMIZAÇÃO: Error Recovery Melhorado ===
 static int error_count = 0;
-static int max_errors = 50; // Limite de erros antes de parar
+static int max_errors = 5; // Limite de erros antes de parar
 
 void yyerror(const char *s) {
     error_count++;
