@@ -27,6 +27,8 @@ O compilador está sendo desenvolvido utilizando as ferramentas **Flex** e **Bis
 ## Escopo e Limitações
 É importante ressaltar que o presente compilador focará na tradução de um subconjunto específico da linguagem Python. Dentre as funcionalidades **não** contempladas neste projeto, destaca-se o tratamento de **orientação a objetos**. Construções como classes, objetos e herança não serão processadas pelo compilador.
 
+Além disso, múltiplos níveis de indentação também não serão compilados. A adição dessa limitação se deu a partir da necessidade de reduzir o escopo do projeto para se adequar às entregas exigidas pela disciplina Compiladores 1, da Universidade de Brasília. Isso torna viável a entrega de um compilador básico funcional como trabalho final.
+
 ---
 ## Organização e Cronograma do Projeto
 

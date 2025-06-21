@@ -51,6 +51,18 @@ Abaixo seguem os pontos principais a serem considerados sobre as linguagens **Py
 
 # Estruturas do Python que serão traduzidas para C
 
+Vale ressaltar que, para cada estrutura que será traduzida, será aceito apenas um nível de indentação, conforme abaixo:
+
+```py
+# Aceito:
+if x == 10:
+    print("x é 10!")
+
+# Não aceito:
+if x == 10:
+    if 10 > 9:
+        print("x é 10 e 10 é maior que 9!")
+```
 
 ## Declarações de Variáveis
 ### O que representa em Python
