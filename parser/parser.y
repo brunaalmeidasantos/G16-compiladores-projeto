@@ -4,6 +4,7 @@
 #include <string.h>
 #include "../ast/ast.h"
 #include "../src/hash.h"
+#include "../semantico/semantico.h"
 
 // Variáveis globais
 extern NoAST *ast_raiz;
@@ -493,6 +494,19 @@ stmt_list:
     }
     ;
 
+    declaracao_var:
+    T_IDENTIFIER {
+        adicionar_variavel($1);
+    };
+
+uso_var:
+    T_IDENTIFIER {
+        if (!variavel_declarada($1)) {
+            printf("Erro semântico: variável '%s' não declarada.\n", $1);
+            exit(1);
+        }
+    };
+
 %%
 
 int main(int argc, char **argv) {
@@ -529,4 +543,39 @@ int main(int argc, char **argv) {
     }   
 
     return result;
+}
+
+stmt:
+    T_IDENTIFIER '=' expr T_NEWLINE {
+        adicionar_variavel($1);
+        $$ = NULL;
+    }
+  | expr T_NEWLINE
+  ;
+
+
+expr:
+    T_IDENTIFIER {
+        if (!variavel_declarada($1)) {
+            printf("Erro semântico: variável '%s' não declarada.\n", $1);
+            exit(1);
+        }
+        $$ = NULL;
+    }
+  | T_NUMBER {
+        $$ = NULL;
+    }
+  | expr '+' expr {
+        $$ = NULL;
+    }
+  | expr '-' expr {
+        $$ = NULL;
+    }
+  ;
+
+  int main(void) {
+    inicializar_tabela_simbolos();
+    yyparse();
+    finalizar_tabela_simbolos();
+    return 0;
 }

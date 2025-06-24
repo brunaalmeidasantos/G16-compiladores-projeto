@@ -13,6 +13,7 @@ all:
 	flex $(LEXER)
 	bison -d $(PARSER)
 	gcc -I. -I./ast -I./src lex.yy.c parser.tab.c $(SRC_FILES) -o $(TARGET) -lfl
+	gcc lex.yy.c parser.tab.c semantico/semantico.c -o $(TARGET)
 
 run: all
 	./$(TARGET)
