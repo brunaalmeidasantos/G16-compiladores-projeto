@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../ast/ast.h"
-#include "../parser/parser.tab.h"
+#include "../parser.tab.h"
 
 int line_num = 1;
 
