@@ -14,6 +14,7 @@ testes_sintatico = [
     ("tests_sint_ok.py", False),
     ("tests_sint_erro.py", True),
     ("tests_sint_extras.py", False),
+    ("tests_contagem_pares.py", False),
     ("tests_semantico_erro.py", True),
     ("tests_semantico_ok.py", False),
 ]

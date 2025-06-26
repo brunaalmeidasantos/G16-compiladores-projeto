@@ -14,13 +14,7 @@ def somar(a, b): # Função com parâmetros e chamada
 
 print(somar(10, 20))
 
-def dobro(n): # Função que chama outra função
+def dobro(n): # Função simples
     return n * 2
 
-def processar(x):
-    return dobro(x) + 1
-
-def contar_ate(n):# Laços e condicionais dentro de função
-    for i in range(n):
-        resultado = n + 1
-    return resultado
+print(dobro(5))  # Esperado: 10
