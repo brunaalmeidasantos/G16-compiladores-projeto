@@ -57,6 +57,32 @@ static void visitar_no(NoAST* no, HashTable* escopo, Simbolo* funcao_atual, int 
             break;
         }
 
+        case OP_AND: case OP_OR: {
+            visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
+            visitar_no(no->dir, escopo, funcao_atual, dentro_de_loop);
+            if (no->esq->tipo_expressao != TIPO_BOOL || no->dir->tipo_expressao != TIPO_BOOL) {
+                erro_semantico("Operandos de operação lógica 'and'/'or' devem ser do tipo 'bool'", "");
+            }
+            no->tipo_expressao = TIPO_BOOL;
+            break;
+        }
+        case OP_NOT: {
+            visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
+            if (no->esq->tipo_expressao != TIPO_BOOL) {
+                erro_semantico("Operando de 'not' deve ser do tipo 'bool'", "");
+            }
+            no->tipo_expressao = TIPO_BOOL;
+            break;
+        }
+        case OP_MENOS_UNARIO: {
+            visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
+            if (no->esq->tipo_expressao != TIPO_INT) {
+                erro_semantico("Operando de menos unário deve ser do tipo 'int'", "");
+            }
+            no->tipo_expressao = TIPO_INT;
+            break;
+        }
+
         /* --- Comandos e Estruturas --- */
         case NODO_BLOCO:
             visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
@@ -64,20 +90,20 @@ static void visitar_no(NoAST* no, HashTable* escopo, Simbolo* funcao_atual, int 
             break;
 
         case NODO_ATRIBUICAO: {
-            // Passo 1: Visita o lado direito p ver o tipo
             visitar_no(no->dir, escopo, funcao_atual, dentro_de_loop);
             Tipo tipo_expressao = no->dir->tipo_expressao;
 
-            // Passo 2: Procura pela variável a esquerda
+            if (tipo_expressao == TIPO_ERRO) {
+                erro_semantico("Expressão do lado direito da atribuição resulta em tipo de erro", no->nome);
+            }
+            
             Simbolo* s = search(escopo, no->nome);
 
             if (s == NULL) {
-                // Passo 3a: DECLARAÇÃO IMPLÍCITA. A variável não existe, então é criada
                 s = criarSimbolo(no->nome, tipo_expressao, 0);
                 insert(escopo, no->nome, s);
                 printf("[Aviso Semântico] Variável '%s' declarada implicitamente com tipo '%s'.\n", no->nome, tipo_para_string(tipo_expressao));
             } else {
-                // Passo 3b: REATRIBUIÇÃO. A variável já existe, verifica tipo p/ reatribuir
                 if (s->tipo != tipo_expressao) {
                     char msg[200];
                     sprintf(msg, "impossível atribuir tipo '%s' para variável '%s' que já é do tipo '%s'",
@@ -101,11 +127,35 @@ static void visitar_no(NoAST* no, HashTable* escopo, Simbolo* funcao_atual, int 
             visitar_no(no->ter, escopo, funcao_atual, dentro_de_loop);
             break;
 
-        case NODO_WHILE: case NODO_FOR:
+        case NODO_WHILE: {
+            if (!no->esq) {
+                erro_semantico("Laço 'while' construído sem condição. Erro no parser.", "");
+            }
             visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
-            if (no->op == NODO_WHILE && no->esq->tipo_expressao != TIPO_BOOL) erro_semantico("Condição do 'while' deve ser do tipo 'bool'", "");
+            
+            if (no->esq->tipo_expressao != TIPO_BOOL) {
+                erro_semantico("A condição do 'while' deve ser um valor booleano.", "");
+            }
             visitar_no(no->dir, escopo, funcao_atual, 1);
+            no->tipo_expressao = TIPO_NONE;
             break;
+        }
+
+        case NODO_FOR: {
+            visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
+            Tipo tipo_var_loop = TIPO_INT; 
+            Simbolo* var_loop_simbolo = search(escopo, no->nome);
+
+            if (var_loop_simbolo == NULL) {
+                var_loop_simbolo = criarSimbolo(no->nome, tipo_var_loop, 0);
+                insert(escopo, no->nome, var_loop_simbolo);
+            } else {
+                var_loop_simbolo->tipo = tipo_var_loop;
+            }
+            visitar_no(no->dir, escopo, funcao_atual, 1);
+            no->tipo_expressao = TIPO_NONE;
+            break;
+        }
 
         case NODO_FUNC_DEF: {
             Simbolo* simbolo_funcao = search(escopo, no->nome);

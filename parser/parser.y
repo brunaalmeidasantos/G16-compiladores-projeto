@@ -127,14 +127,14 @@ declaration:
     }
     ;
 
-stmt: simple_stmt maybe_newline { $$ = $1; } | compound_stmt maybe_newline { $$ = $1; };
+stmt: simple_stmt maybe_newline { $$ = $1; } | compound_stmt maybe_newline maybe_indent { $$ = $1; };
 
 simple_stmt: small_stmt maybe_newline { $$ = $1; };
 
 small_stmt:
     maybe_newline maybe_indent expr_stmt { $$ = $3; }
     | maybe_newline maybe_indent print_stmt { $$ = $3; }
-    | maybe_newline maybe_indent flow_stmt maybe_newline T_DEDENT { $$ = $3; }
+    | maybe_newline maybe_indent flow_stmt T_NEWLINE T_DEDENT { $$ = $3; }
     ;
 
 compound_stmt:
@@ -147,13 +147,14 @@ compound_stmt:
 expr_stmt:
     T_IDENTIFIER T_EQUAL test { $$ = criarNoAtribuicao($1, $3); free($1); }
     | test { $$ = $1; }
+    | T_IDENTIFIER T_EQUAL expr { $$ = criarNoAtribuicao($1, $3); free($1); }
     ;
 
 flow_stmt:
     maybe_dedent maybe_newline T_BREAK { $$ = criarNoFlow(T_BREAK); }
     | maybe_dedent maybe_newline T_CONTINUE { $$ = criarNoFlow(T_CONTINUE); }
     | maybe_dedent maybe_newline T_PASS { $$ = NULL; } // Pass não gera nó
-    | maybe_dedent maybe_newline return_stmt { $$ = $2; }
+    | maybe_dedent maybe_newline return_stmt { $$ = $3; }
     ;
 
 test:
@@ -180,7 +181,7 @@ comp_op:
     ;
 
 expr: arith_expr { $$ = $1; };
-arith_expr: term { $$ = $1; } | arith_expr T_PLUS term { $$ = criarNoOp(T_PLUS, $1, $3); } | arith_expr T_MINUS term { $$ = criarNoOp(T_MINUS, $1, $3); };
+arith_expr: term { $$ = $1; } | arith_expr T_PLUS term { $$ = criarNoOp(OP_SOMA, $1, $3); } | arith_expr T_MINUS term { $$ = criarNoOp(OP_SUB, $1, $3); };
 term: factor { $$ = $1; } | term T_STAR factor { $$ = criarNoOp(OP_MUL, $1, $3); } | term T_RBAR factor { $$ = criarNoOp(OP_DIV, $1, $3); };
 factor: power { $$ = $1; } | T_MINUS factor %prec UMINUS { $$ = criarNoOp(OP_MENOS_UNARIO, $2, NULL); };
 power: atom_expr { $$ = $1; };
@@ -218,7 +219,7 @@ if_stmt:
     | T_IF test T_COLON T_NEWLINE suite T_ELSE suite { $$ = criarNoIf($2, $5, $7); }
     ;
 
-while_stmt: T_WHILE test T_COLON T_NEWLINE suite T_NEWLINE T_DEDENT maybe_newline { $$ = criarNoWhile($2, $5); };
+while_stmt: T_WHILE test T_COLON T_NEWLINE T_INDENT suite { $$ = criarNoWhile($2, $6); };
 
 for_stmt:
     maybe_newline T_FOR T_IDENTIFIER T_IN T_RANGE test T_COLON T_NEWLINE suite
@@ -260,9 +261,11 @@ return_stmt:
     ;
 
 suite:
-    stmt_list { $$ = $1; }
-    | flow_stmt { $$ = $1; }
-    | maybe_dedent maybe_newline print_stmt { $$ = $2; }
+    maybe_newline maybe_indent stmt_list { $$ = $3; }
+    | maybe_newline maybe_indent flow_stmt { $$ = $3; }
+    | maybe_newline maybe_indent print_stmt { $$ = $3; }
+    | maybe_newline maybe_indent expr_stmt { $$ = $3; }
+    | maybe_newline maybe_indent suite { $$ = $3; }
     ;
 
 stmt_list:
