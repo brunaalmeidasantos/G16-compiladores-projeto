@@ -21,6 +21,6 @@ def processar(x):
     return dobro(x) + 1
 
 def contar_ate(n):# Laços e condicionais dentro de função
-    for i in range n:
+    for i in range(n):
         resultado = n + 1
     return resultado
