@@ -3,7 +3,6 @@
 #include <string.h>
 #include "ast.h"
 
-// Função auxiliar para alocar um nó padrão
 NoAST* criarNoBase() {
     NoAST *no = (NoAST*) malloc(sizeof(NoAST));
     if (!no) {
@@ -11,7 +10,7 @@ NoAST* criarNoBase() {
         exit(1);
     }
     no->esq = no->dir = no->ter = NULL;
-    no->tipo_expressao = TIPO_ERRO; // Tipo é desconhecido até a análise semântica
+    no->tipo_expressao = TIPO_ERRO; // O tipo será definido na análise semântica
     return no;
 }
 
@@ -27,7 +26,7 @@ NoAST *criarNoNum(int val) {
     NoAST *no = criarNoBase();
     no->op = NODO_NUM;
     no->valor_int = val;
-    no->tipo_expressao = TIPO_INT; // Tipo de um número é sempre INT
+    no->tipo_expressao = TIPO_INT;
     return no;
 }
 
@@ -84,23 +83,77 @@ NoAST *criarNoAtribuicao(char *nome, NoAST *valor) {
     no->op = NODO_ATRIBUICAO;
     strncpy(no->nome, nome, 99);
     no->nome[99] = '\0';
-    no->dir = valor; // O valor da atribuição fica na direita
+    no->dir = valor;
     return no;
 }
 
-// Nó especial para sequências de comandos
-NoAST *criarNoBloco(NoAST* bloco_existente, NoAST* novo_comando) {
-    if (!bloco_existente) return novo_comando; // Primeiro comando do bloco
-    if (!novo_comando) return bloco_existente; // Novo comando é nulo
-
+NoAST *criarNoBloco(NoAST* stmts, NoAST* nova_stmt) {
     NoAST *no = criarNoBase();
     no->op = NODO_BLOCO;
-    no->esq = bloco_existente;
-    no->dir = novo_comando;
+    no->esq = stmts;
+    no->dir = nova_stmt;
     return no;
 }
 
-// Funções auxiliares...
+NoAST *criarNoFuncao(char *nome, NoAST *parametros, NoAST *corpo) {
+    NoAST *no = criarNoBase();
+    no->op = NODO_FUNC_DEF;
+    strncpy(no->nome, nome, 99);
+    no->nome[99] = '\0';
+    no->esq = parametros;
+    no->dir = corpo;
+    return no;
+}
+
+NoAST* criarNoFlow(Operador op_fluxo) {
+    NoAST* no = criarNoBase();
+    no->op = op_fluxo; // OP_BREAK ou OP_CONTINUE
+    return no;
+}
+
+NoAST* criarNoChamadaFunc(NoAST* argumentos) {
+    NoAST* no = criarNoBase();
+    no->op = NODO_CHAMADA_FUNC;
+    no->dir = argumentos; // A expressão da função será ligada em 'esq' no parser
+    return no;
+}
+
+NoAST* criarNoListaArgs(NoAST* lista, NoAST* novo_arg) {
+    NoAST* no = criarNoBase();
+    no->op = NODO_LISTA_ARGS;
+    no->esq = lista;
+    no->dir = novo_arg;
+    return no;
+}
+
+NoAST* criarNoFor(char* var, NoAST* iteravel, NoAST* corpo) {
+    NoAST* no = criarNoBase();
+    no->op = NODO_FOR;
+    strncpy(no->nome, var, 99);
+    no->nome[99] = '\0';
+    no->esq = iteravel;
+    no->dir = corpo;
+    return no;
+}
+
+NoAST* criarNoReturn(NoAST* valor_retorno) {
+    NoAST* no = criarNoBase();
+    no->op = NODO_RETURN;
+    no->esq = valor_retorno; // Pode ser NULL
+    return no;
+}
+
+NoAST* criarNoPrint(NoAST* expressao) {
+    NoAST* no = criarNoBase();
+    no->op = NODO_PRINT;
+    no->esq = expressao;
+    no->dir = NULL;
+    no->ter = NULL;
+    return no;
+}
+
+/* --- Funções Auxiliares --- */
+
 const char* tipo_para_string(Tipo tipo) {
     switch (tipo) {
         case TIPO_INT: return "int";
@@ -126,7 +179,7 @@ Operador op_from_string(const char* s) {
     if (strcmp(s, "<=") == 0) return OP_LE;
     if (strcmp(s, ">") == 0) return OP_GT;
     if (strcmp(s, ">=") == 0) return OP_GE;
-    return -1; // Erro
+    return -1;
 }
 
 Simbolo* criarSimbolo(const char* nome, Tipo tipo, int is_funcao) {
@@ -137,4 +190,8 @@ Simbolo* criarSimbolo(const char* nome, Tipo tipo, int is_funcao) {
     return s;
 }
 
-void imprimirAST(NoAST *no) { /* A lógica de impressão precisa ser atualizada para os novos enums e a estrutura de 3 filhos */ }
+// A implementação de imprimirAST precisa ser expandida
+void imprimirAST(NoAST *no) {
+    if (!no) return;
+    printf("(Nó op: %d)", no->op);
+}

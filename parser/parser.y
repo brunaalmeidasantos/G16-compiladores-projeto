@@ -5,7 +5,6 @@
 #include "../src/globals.h"
 #include "../semantico/semantico.h"
 
-// Declarações de funções que o Bison precisa conhecer.
 int yylex();
 void yyerror(const char *s);
 
@@ -32,7 +31,7 @@ extern int yylineno;
 %token T_PASS T_RAISE T_RETURN T_TRY T_WHILE T_WITH T_YIELD
 %token T_LPAREN T_RPAREN T_LBRACKET T_RBRACKET T_LBRACE T_RBRACE
 %token T_COMMA T_COLON T_SEMICOLON
-%token T_INDENT T_DEDENT T_NEWLINE
+%token T_INDENT T_NEWLINE T_DEDENT
 %token T_EQUAL T_RBAR T_LBAR T_PORCENT
 %token T_PLUS T_STAR T_OPTIONAL T_PLUS_EQUAL T_MINUS_EQUAL T_MINUS
 %token T_GE T_GT T_LE T_LT T_NE T_EQ
@@ -77,9 +76,6 @@ program:
         printf("Análise sintática concluída.\n");
         ast_raiz = $2;
         if (ast_raiz) {
-            printf("\n--- Abstract Syntax Tree ---\n");
-            // imprimirAST(ast_raiz); // Opcional
-            printf("\n----------------------------\n");
             printf("\nIniciando análise semântica...\n");
             analise_semantica(ast_raiz, tabela_simbolos_global);
             printf("Análise semântica concluída.\n");
@@ -137,23 +133,15 @@ small_stmt:
     ;
 
 compound_stmt:
-    maybe_newline maybe_indent if_stmt { $$ = $3; }
-    | maybe_newline maybe_indent while_stmt { $$ = $3; }
-    | maybe_newline maybe_indent for_stmt { $$ = $3; }
-    | maybe_newline maybe_indent funcdef { $$ = $3; }
+    maybe_newline maybe_indent if_stmt T_NEWLINE T_DEDENT maybe_newline { $$ = $3; }
+    | maybe_newline maybe_indent while_stmt T_NEWLINE T_DEDENT maybe_newline { $$ = $3; }
+    | maybe_newline maybe_indent for_stmt T_NEWLINE T_DEDENT maybe_newline { $$ = $3; }
+    | maybe_newline maybe_indent funcdef T_NEWLINE T_DEDENT maybe_newline { $$ = $3; }
     ;
 
 expr_stmt:
     T_IDENTIFIER T_EQUAL test { $$ = criarNoAtribuicao($1, $3); free($1); }
     | test { $$ = $1; }
-    ;
-
-print_stmt:
-    T_PRINT T_LPAREN test T_RPAREN
-    {
-        printf("Comando print detectado\n");
-        $$ = $3; // Por enquanto, apenas passa o nó da expressão para fins de demonstração
-    }
     ;
 
 flow_stmt:
@@ -168,13 +156,17 @@ test:
     | or_test T_IF or_test T_ELSE test { $$ = criarNoIf($3, $1, $5); }
     ;
 
-or_test: and_test { $$ = $1; } | or_test T_OR and_test { $$ = criarNoOp(T_OR, $1, $3); };
-and_test: not_test { $$ = $1; } | and_test T_AND not_test { $$ = criarNoOp(T_AND, $1, $3); };
-not_test: T_NOT not_test { $$ = criarNoOp(T_NOT, $2, NULL); } | comparison { $$ = $1; };
+or_test: and_test { $$ = $1; } | or_test T_OR and_test { $$ = criarNoOp(OP_OR, $1, $3); };
+and_test: not_test { $$ = $1; } | and_test T_AND not_test { $$ = criarNoOp(OP_AND, $1, $3); };
+not_test: T_NOT not_test { $$ = criarNoOp(OP_NOT, $2, NULL); } | comparison { $$ = $1; };
+
+print_stmt:
+    T_PRINT T_LPAREN test T_RPAREN { $$ = criarNoPrint($3); }
+    ;
 
 comparison:
     expr { $$ = $1; }
-    | comparison comp_op expr { $$ = criarNoOp(T_from_string($2), $1, $3); free($2); }
+    | comparison comp_op expr { $$ = criarNoOp(op_from_string($2), $1, $3); free($2); }
     ;
 
 comp_op:
@@ -184,8 +176,8 @@ comp_op:
 
 expr: arith_expr { $$ = $1; };
 arith_expr: term { $$ = $1; } | arith_expr T_PLUS term { $$ = criarNoOp(T_PLUS, $1, $3); } | arith_expr T_MINUS term { $$ = criarNoOp(T_MINUS, $1, $3); };
-term: factor { $$ = $1; } | term T_STAR factor { $$ = criarNoOp(T_MUL, $1, $3); } | term T_RBAR factor { $$ = criarNoOp(T_DIV, $1, $3); };
-factor: power { $$ = $1; } | T_MINUS factor %prec UMINUS { $$ = criarNoOp(T_MENOS_UNARIO, $2, NULL); };
+term: factor { $$ = $1; } | term T_STAR factor { $$ = criarNoOp(OP_MUL, $1, $3); } | term T_RBAR factor { $$ = criarNoOp(OP_DIV, $1, $3); };
+factor: power { $$ = $1; } | T_MINUS factor %prec UMINUS { $$ = criarNoOp(OP_MENOS_UNARIO, $2, NULL); };
 power: atom_expr { $$ = $1; };
 
 atom_expr:

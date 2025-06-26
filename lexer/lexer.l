@@ -14,11 +14,92 @@ void print_token(const char* token_name, const char* value) {
 void print_simple_token(const char* token_name) {
     printf("%s\n", token_name);
 }
+
+#define MAX_INDENT 50
+int indent_stack[MAX_INDENT];
+int indent_top = 0;
+
+// Fila para tokens pendentes (necessário para emitir múltiplos DEDENTs)
+int pending_tokens[MAX_INDENT];
+int pending_tokens_count = 0;
+
+void inicializar_indentacao() {
+    indent_stack[0] = 0;
+    indent_top = 0;
+}
+
+static int first_run = 1;
 %}
 
+%x INDENT_CHECK
 %option noyywrap nounput noinput
 
 %%
+
+%{
+    if (first_run) {
+        inicializar_indentacao();
+        first_run = 0;
+        BEGIN(INDENT_CHECK);
+    }
+
+    if (pending_tokens_count > 0) {
+        print_simple_token("T_DEDENT");
+        return pending_tokens[--pending_tokens_count];
+    }
+%}
+
+<INDENT_CHECK>{
+    /* Espaços no início da linha */
+    [ \t]+      {
+                    int current_indent = yyleng;
+                    if (current_indent > indent_stack[indent_top]) {
+                        // --- INDENT ---
+                        indent_stack[++indent_top] = current_indent;
+                        BEGIN(INITIAL); // Volta ao estado normal
+                        print_simple_token("T_INDENT");
+                        return T_INDENT;
+                    }
+                    if (current_indent < indent_stack[indent_top]) {
+                        // --- DEDENT ---
+                        // Enfileira os DEDENTs e retorna o primeiro
+                        while (current_indent < indent_stack[indent_top]) {
+                            indent_top--;
+                            if (current_indent > indent_stack[indent_top]) {
+                                fprintf(stderr, "Erro de Indentação: nível inconsistente.\n");
+                                exit(1);
+                            }
+                            pending_tokens[pending_tokens_count++] = T_DEDENT;
+                        }
+                        yyless(0);
+                        BEGIN(INITIAL);
+                        print_simple_token("T_DEDENT");
+                        return pending_tokens[--pending_tokens_count];
+                    }
+                    // Indentação igual, volta ao estado normal
+                    yyless(0);
+                    BEGIN(INITIAL);
+                }
+
+    \n          { /* Ignora linhas em branco, permanece em INDENT_CHECK */ }
+    #.* { /* Ignora comentários, permanece em INDENT_CHECK */ }
+
+    .           {
+                    if (indent_stack[indent_top] > 0) {
+                        while (indent_stack[indent_top] > 0) {
+                            indent_top--;
+                            pending_tokens[pending_tokens_count++] = T_DEDENT;
+                        }
+                    }
+                    yyless(0);
+                    BEGIN(INITIAL);
+
+                    if (pending_tokens_count > 0) {
+                        print_simple_token("T_DEDENT");
+                        return pending_tokens[--pending_tokens_count];
+                    }
+                }
+}
 
 "="                        { print_simple_token("T_EQUAL"); return T_EQUAL; }
 "+="                       { print_simple_token("T_PLUS_EQUAL"); return T_PLUS_EQUAL; }
@@ -33,7 +114,7 @@ void print_simple_token(const char* token_name) {
 "-"                        { print_simple_token("T_MINUS"); return T_MINUS; }
 "+"                        { print_simple_token("T_PLUS"); return T_PLUS; }
 "?"                        { print_simple_token("T_OPTIONAL"); return T_OPTIONAL; }
-"\\"                        { print_simple_token("T_LBAR"); return T_LBAR; }
+"\\"                       { print_simple_token("T_LBAR"); return T_LBAR; }
 "/"                        { print_simple_token("T_RBAR"); return T_RBAR; }
 "%"                        { print_simple_token("T_PORCENT"); return T_PORCENT; }
 
@@ -126,12 +207,27 @@ void print_simple_token(const char* token_name) {
 
 #[^\n]*                    { /* ignora comentários */ }
 
-^[ \t]+                    { print_simple_token("T_INDENT"); return T_INDENT; }
-[ \t\r]+                     { /* ignora espaço normal */ }
+^[ \t]*#.*  /* Ignora comentário */
+^[ \t]+$    /* Ignora linha com apenas espaços */
+[ \t\r]+  { /* ignora espaço no meio da linha */ }
 
-\n+                         { line_num++; 
-                             print_simple_token("T_NEWLINE"); 
-                             return T_NEWLINE; }
+\n          {
+                print_simple_token("T_NEWLINE");
+                BEGIN(INDENT_CHECK);
+                return T_NEWLINE;
+            }
+
+<<EOF>>     {
+                while (indent_stack[indent_top] > 0) {
+                    indent_top--;
+                    pending_tokens[pending_tokens_count++] = T_DEDENT;
+                }
+                if (pending_tokens_count > 0) {
+                    print_simple_token("T_DEDENT");
+                    return pending_tokens[--pending_tokens_count];
+                }
+                return 0;
+            }
 
 .                          { printf("Token não reconhecido: %s\n", yytext); 
                              return *yytext; }

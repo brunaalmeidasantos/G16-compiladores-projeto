@@ -1,4 +1,5 @@
 x = 10
+resultado = 0
 if x == 10:
     resultado = 100
 

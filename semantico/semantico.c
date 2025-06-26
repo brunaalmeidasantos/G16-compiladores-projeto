@@ -3,138 +3,156 @@
 #include <string.h>
 #include "semantico.h"
 
-// Declaração da função recursiva que percorre a árvore.
-// Ela é interna a este arquivo (static).
-static void visitar_no(NoAST* no, HashTable* tabela);
+static void visitar_no(NoAST* no, HashTable* escopo, Simbolo* funcao_atual, int dentro_de_loop);
+static void visitar_lista_parametros(NoAST* no, HashTable* escopo_funcao);
 
-// Função principal exportada
 void analise_semantica(NoAST* raiz, HashTable* tabela_global) {
     if (!raiz) return;
-    visitar_no(raiz, tabela_global);
+    visitar_no(raiz, tabela_global, NULL, 0);
 }
 
-// Função auxiliar para reportar erros
 void erro_semantico(const char* mensagem, const char* detalhe) {
     fprintf(stderr, "[Erro Semântico] %s: %s\n", mensagem, detalhe);
-    // Em um compilador real, você poderia contar os erros em vez de sair.
     exit(1);
 }
 
-// A função que faz todo o trabalho, percorrendo a AST
-static void visitar_no(NoAST* no, HashTable* tabela) {
+
+// FUNÇÃO PRINCIPAL QUE PERCORRE A AST RECURSIVAMENTE
+static void visitar_no(NoAST* no, HashTable* escopo, Simbolo* funcao_atual, int dentro_de_loop) {
     if (!no) return;
 
-    // A visita é pós-ordem para expressões: primeiro visita os filhos, depois o pai.
-    // Para comandos, a ordem pode variar.
-
     switch(no->op) {
-        // --- NÓS FOLHA (CASOS BASE DA RECURSÃO) ---
-        case NODO_NUM:
-            no->tipo_expressao = TIPO_INT;
-            break;
-        case NODO_STRING:
-            no->tipo_expressao = TIPO_STRING;
-            break;
-        case NODO_BOOL:
-            no->tipo_expressao = TIPO_BOOL;
-            break;
-        case NODO_NONE:
-            no->tipo_expressao = TIPO_NONE;
-            break;
+        /* --- Nós Folha --- */
+        case NODO_NUM: no->tipo_expressao = TIPO_INT; break;
+        case NODO_STRING: no->tipo_expressao = TIPO_STRING; break;
+        case NODO_BOOL: no->tipo_expressao = TIPO_BOOL; break;
+        case NODO_NONE: no->tipo_expressao = TIPO_NONE; break;
         case NODO_ID: {
-            Simbolo* s = search(tabela, no->nome);
+            // Quando uma variável é USADA, ela DEVE existir.
+            Simbolo* s = search(escopo, no->nome);
             if (s == NULL) {
-                erro_semantico("Variável não declarada", no->nome);
+                erro_semantico("Variável ou função não declarada antes do uso", no->nome);
             }
-            no->tipo_expressao = s->tipo; // O tipo do nó é o tipo do símbolo na tabela
+            no->tipo_expressao = s->tipo;
             break;
         }
 
-        // --- OPERADORES DE EXPRESSÃO ---
-        case OP_SOMA:
-        case OP_SUB:
-        case OP_MUL:
-        case OP_DIV: {
-            visitar_no(no->esq, tabela);
-            visitar_no(no->dir, tabela);
-            // REGRA: Ambos os operandos devem ser inteiros.
+        /* --- Operadores de Expressão --- */
+        case OP_SOMA: case OP_SUB: case OP_MUL: case OP_DIV: {
+            visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
+            visitar_no(no->dir, escopo, funcao_atual, dentro_de_loop);
             if (no->esq->tipo_expressao != TIPO_INT || no->dir->tipo_expressao != TIPO_INT) {
                 erro_semantico("Operandos de operação aritmética devem ser do tipo 'int'", "");
             }
-            no->tipo_expressao = TIPO_INT; // O resultado é 'int'
+            no->tipo_expressao = TIPO_INT;
             break;
         }
-        case OP_EQ:
-        case OP_NE:
-        case OP_LT:
-        case OP_LE:
-        case OP_GT:
-        case OP_GE: {
-            visitar_no(no->esq, tabela);
-            visitar_no(no->dir, tabela);
-            // REGRA: Os tipos devem ser compatíveis para comparação.
+        case OP_EQ: case OP_NE: case OP_LT: case OP_LE: case OP_GT: case OP_GE: {
+            visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
+            visitar_no(no->dir, escopo, funcao_atual, dentro_de_loop);
             if (no->esq->tipo_expressao != no->dir->tipo_expressao) {
                 erro_semantico("Tipos incompatíveis para operação de comparação", "");
             }
-            no->tipo_expressao = TIPO_BOOL; // O resultado de uma comparação é 'bool'
+            no->tipo_expressao = TIPO_BOOL;
             break;
         }
 
-        // --- COMANDOS ---
+        /* --- Comandos e Estruturas --- */
+        case NODO_BLOCO:
+            visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
+            visitar_no(no->dir, escopo, funcao_atual, dentro_de_loop);
+            break;
+
         case NODO_ATRIBUICAO: {
-            // Primeiro, verifica se a variável do lado esquerdo foi declarada.
-            Simbolo* s = search(tabela, no->nome);
+            // Passo 1: Visita o lado direito p ver o tipo
+            visitar_no(no->dir, escopo, funcao_atual, dentro_de_loop);
+            Tipo tipo_expressao = no->dir->tipo_expressao;
+
+            // Passo 2: Procura pela variável a esquerda
+            Simbolo* s = search(escopo, no->nome);
+
             if (s == NULL) {
-                erro_semantico("Variável de atribuição não declarada", no->nome);
+                // Passo 3a: DECLARAÇÃO IMPLÍCITA. A variável não existe, então é criada
+                s = criarSimbolo(no->nome, tipo_expressao, 0);
+                insert(escopo, no->nome, s);
+                printf("[Aviso Semântico] Variável '%s' declarada implicitamente com tipo '%s'.\n", no->nome, tipo_para_string(tipo_expressao));
+            } else {
+                // Passo 3b: REATRIBUIÇÃO. A variável já existe, verifica tipo p/ reatribuir
+                if (s->tipo != tipo_expressao) {
+                    char msg[200];
+                    sprintf(msg, "impossível atribuir tipo '%s' para variável '%s' que já é do tipo '%s'",
+                            tipo_para_string(tipo_expressao), s->nome, tipo_para_string(s->tipo));
+                    erro_semantico("Reatribuição com tipo incompatível", msg);
+                }
             }
-            // Agora, visita o lado direito para descobrir seu tipo.
-            visitar_no(no->dir, tabela);
-            // REGRA: O tipo do valor (direita) deve ser o mesmo da variável (esquerda).
-            if (s->tipo != no->dir->tipo_expressao) {
-                char msg[200];
-                sprintf(msg, "Impossível atribuir tipo '%s' para variável '%s' do tipo '%s'",
-                        tipo_para_string(no->dir->tipo_expressao),
-                        s->nome,
-                        tipo_para_string(s->tipo));
-                erro_semantico("Incompatibilidade de tipos na atribuição", msg);
-            }
-            // Uma atribuição em si não tem tipo de retorno.
             no->tipo_expressao = TIPO_NONE;
             break;
         }
-        case NODO_IF: {
-            // Visita a condição
-            visitar_no(no->esq, tabela);
-            // REGRA: A condição do 'if' deve resultar em um booleano.
-            if (no->esq->tipo_expressao != TIPO_BOOL) {
-                erro_semantico("Condição do 'if' deve ser do tipo 'bool'", "");
+
+        case NODO_PRINT:
+            if (no->esq) visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
+            no->tipo_expressao = TIPO_NONE;
+            break;
+
+        case NODO_IF:
+            visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
+            if (no->esq->tipo_expressao != TIPO_BOOL) erro_semantico("Condição do 'if' deve ser do tipo 'bool'", "");
+            visitar_no(no->dir, escopo, funcao_atual, dentro_de_loop);
+            visitar_no(no->ter, escopo, funcao_atual, dentro_de_loop);
+            break;
+
+        case NODO_WHILE: case NODO_FOR:
+            visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
+            if (no->op == NODO_WHILE && no->esq->tipo_expressao != TIPO_BOOL) erro_semantico("Condição do 'while' deve ser do tipo 'bool'", "");
+            visitar_no(no->dir, escopo, funcao_atual, 1);
+            break;
+
+        case NODO_FUNC_DEF: {
+            Simbolo* simbolo_funcao = search(escopo, no->nome);
+            HashTable* escopo_funcao = create_table();
+            if (no->esq) {
+                visitar_lista_parametros(no->esq, escopo_funcao);
             }
-            // Visita os corpos do if e do else
-            visitar_no(no->dir, tabela);
-            visitar_no(no->ter, tabela); // 'ter' é o 'else'
+            visitar_no(no->dir, escopo_funcao, simbolo_funcao, 0);
+            free_table(escopo_funcao);
+            no->tipo_expressao = TIPO_NONE;
             break;
         }
-        case NODO_WHILE: {
-            // Visita a condição
-            visitar_no(no->esq, tabela);
-            // REGRA: A condição do 'while' deve resultar em um booleano.
-            if (no->esq->tipo_expressao != TIPO_BOOL) {
-                erro_semantico("Condição do 'while' deve ser do tipo 'bool'", "");
+        
+        case NODO_RETURN:
+            if (funcao_atual == NULL) erro_semantico("Instrução 'return' fora de uma função.", "");
+            if (no->esq) {
+                visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
             }
-            // Visita o corpo do loop
-            visitar_no(no->dir, tabela);
+            no->tipo_expressao = TIPO_NONE;
             break;
-        }
-        case NODO_BLOCO: {
-            // Visita a cadeia de comandos
-            visitar_no(no->esq, tabela);
-            visitar_no(no->dir, tabela);
+            
+        case OP_BREAK: case OP_CONTINUE:
+            if (!dentro_de_loop) erro_semantico("Instrução 'break' ou 'continue' fora de um laço.", "");
             break;
-        }
+
+        case NODO_CHAMADA_FUNC:
+        case NODO_LISTA_ARGS:
+            visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
+            visitar_no(no->dir, escopo, funcao_atual, dentro_de_loop);
+            break;
 
         default:
-            // Caso algum nó não seja tratado
             fprintf(stderr, "Aviso: Nó do tipo %d não tratado pelo analisador semântico.\n", no->op);
             break;
+    }
+}
+
+static void visitar_lista_parametros(NoAST* no, HashTable* escopo_funcao) {
+    if (!no) return;
+
+    if (no->op == NODO_LISTA_ARGS) {
+        visitar_lista_parametros(no->esq, escopo_funcao);
+        visitar_lista_parametros(no->dir, escopo_funcao);
+    } else if (no->op == NODO_ID) {
+        if (search(escopo_funcao, no->nome) != NULL) {
+            erro_semantico("Parâmetro com nome duplicado na definição da função", no->nome);
+        }
+        insert(escopo_funcao, no->nome, criarSimbolo(no->nome, TIPO_INT, 0));
     }
 }
