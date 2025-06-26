@@ -15,11 +15,14 @@ extern int yylineno;
 %union {
     char *strval;
     int intval;
+    float floatval;
     NoAST *node;
 }
 
 %token <strval> ID TIPO T_STRING T_IDENTIFIER
-%token <intval> T_NUMBER T_TRUE T_FALSE
+%token <intval> T_TRUE T_FALSE
+%token <floatval> T_FLOAT_NUMBER
+%token <intval> T_NUMBER
 
 %token T_PRINT T_RANGE
 %token T_AND T_OR T_NOT
@@ -197,6 +200,7 @@ atom_expr:
 atom:
     T_IDENTIFIER { $$ = criarNoId($1); free($1); }
     | T_NUMBER { $$ = criarNoNum($1); }
+    | T_FLOAT_NUMBER { $$ = criarNoFloat($1); }
     | T_STRING { $$ = criarNoString($1); free($1); }
     | T_TRUE   { $$ = criarNoBool(1); }
     | T_FALSE  { $$ = criarNoBool(0); }

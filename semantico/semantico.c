@@ -24,6 +24,7 @@ static void visitar_no(NoAST* no, HashTable* escopo, Simbolo* funcao_atual, int 
     switch(no->op) {
         /* --- Nós Folha --- */
         case NODO_NUM: no->tipo_expressao = TIPO_INT; break;
+        case NODO_FLOAT: no->tipo_expressao = TIPO_FLOAT; break;
         case NODO_STRING: no->tipo_expressao = TIPO_STRING; break;
         case NODO_BOOL: no->tipo_expressao = TIPO_BOOL; break;
         case NODO_NONE: no->tipo_expressao = TIPO_NONE; break;
@@ -41,16 +42,26 @@ static void visitar_no(NoAST* no, HashTable* escopo, Simbolo* funcao_atual, int 
         case OP_SOMA: case OP_SUB: case OP_MUL: case OP_DIV: {
             visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
             visitar_no(no->dir, escopo, funcao_atual, dentro_de_loop);
-            if (no->esq->tipo_expressao != TIPO_INT || no->dir->tipo_expressao != TIPO_INT) {
-                erro_semantico("Operandos de operação aritmética devem ser do tipo 'int'", "");
+            Tipo tipo_esq = no->esq->tipo_expressao;
+            Tipo tipo_dir = no->dir->tipo_expressao;
+
+            if ((tipo_esq != TIPO_INT && tipo_esq != TIPO_FLOAT) || (tipo_dir != TIPO_INT && tipo_dir != TIPO_FLOAT)) {
+                erro_semantico("Operandos de operação aritmética devem ser do tipo 'int' ou 'float'", "");
             }
-            no->tipo_expressao = TIPO_INT;
+
+            if (tipo_esq == TIPO_FLOAT || tipo_dir == TIPO_FLOAT) {
+                no->tipo_expressao = TIPO_FLOAT;
+            } else {
+                no->tipo_expressao = TIPO_INT;
+            }
             break;
         }
         case OP_EQ: case OP_NE: case OP_LT: case OP_LE: case OP_GT: case OP_GE: {
             visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
             visitar_no(no->dir, escopo, funcao_atual, dentro_de_loop);
-            if (no->esq->tipo_expressao != no->dir->tipo_expressao) {
+            if (no->esq->tipo_expressao != no->dir->tipo_expressao && 
+                !((no->esq->tipo_expressao == TIPO_INT && no->dir->tipo_expressao == TIPO_FLOAT) ||
+                  (no->esq->tipo_expressao == TIPO_FLOAT && no->dir->tipo_expressao == TIPO_INT))) {
                 erro_semantico("Tipos incompatíveis para operação de comparação", "");
             }
             no->tipo_expressao = TIPO_BOOL;
@@ -76,10 +87,10 @@ static void visitar_no(NoAST* no, HashTable* escopo, Simbolo* funcao_atual, int 
         }
         case OP_MENOS_UNARIO: {
             visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
-            if (no->esq->tipo_expressao != TIPO_INT) {
-                erro_semantico("Operando de menos unário deve ser do tipo 'int'", "");
+            if (no->esq->tipo_expressao != TIPO_INT && no->esq->tipo_expressao != TIPO_FLOAT) {
+                erro_semantico("Operando de menos unário deve ser do tipo 'int' ou 'float'", "");
             }
-            no->tipo_expressao = TIPO_INT;
+            no->tipo_expressao = no->esq->tipo_expressao;
             break;
         }
 

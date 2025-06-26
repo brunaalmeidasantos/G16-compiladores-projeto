@@ -7,7 +7,8 @@ typedef enum {
     TIPO_BOOL,
     TIPO_NONE,
     TIPO_ERRO,
-    TIPO_FUNCAO
+    TIPO_FUNCAO,
+    TIPO_FLOAT
 } Tipo;
 
 typedef enum {
@@ -34,6 +35,7 @@ typedef enum {
     NODO_STRING,
     NODO_BOOL,
     NODO_NONE,
+    NODO_FLOAT,
     // Controle de Fluxo
     OP_BREAK,
     OP_CONTINUE
@@ -43,6 +45,7 @@ typedef struct noAST {
     Operador op;         // O tipo do nó ou do operador
     char nome[100];      // Usado para IDs
     int valor_int;       // Usado para números e booleanos
+    float valor_float;   // Adicionado para números float
     char* valor_string;  // Usado para strings
     Tipo tipo_expressao; // Tipo inferido da expressão
     struct noAST *esq;   // Filho esquerdo (ou próximo comando em um bloco)
@@ -56,6 +59,7 @@ NoAST *criarNoAtribuicao(char *nome, NoAST *valor);
 
 // Nós Folha
 NoAST *criarNoNum(int val);
+NoAST *criarNoFloat(float val);
 NoAST *criarNoId(char *nome);
 NoAST *criarNoString(char *valor);
 NoAST *criarNoBool(int valor);
