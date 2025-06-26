@@ -97,6 +97,11 @@ maybe_indent:
     | T_INDENT maybe_indent { $$ = NULL; }
     ;
 
+maybe_dedent:
+    /* vazio */
+    | T_DEDENT maybe_dedent
+    ;
+
 maybe_newline:
     /* vazio */ { $$ = NULL; }
     | T_NEWLINE maybe_newline { $$ = NULL; }
@@ -122,21 +127,21 @@ declaration:
     }
     ;
 
-stmt: simple_stmt { $$ = $1; } | compound_stmt { $$ = $1; };
+stmt: simple_stmt maybe_newline { $$ = $1; } | compound_stmt maybe_newline { $$ = $1; };
 
-simple_stmt: small_stmt T_NEWLINE { $$ = $1; };
+simple_stmt: small_stmt maybe_newline { $$ = $1; };
 
 small_stmt:
-    maybe_newline expr_stmt { $$ = $2; }
-    | maybe_newline print_stmt { $$ = $2; }
-    | maybe_newline flow_stmt { $$ = $2; }
+    maybe_newline maybe_indent expr_stmt { $$ = $3; }
+    | maybe_newline maybe_indent print_stmt { $$ = $3; }
+    | maybe_newline maybe_indent flow_stmt maybe_newline T_DEDENT { $$ = $3; }
     ;
 
 compound_stmt:
-    maybe_newline maybe_indent if_stmt T_NEWLINE T_DEDENT maybe_newline { $$ = $3; }
-    | maybe_newline maybe_indent while_stmt T_NEWLINE T_DEDENT maybe_newline { $$ = $3; }
-    | maybe_newline maybe_indent for_stmt T_NEWLINE T_DEDENT maybe_newline { $$ = $3; }
-    | maybe_newline maybe_indent funcdef T_NEWLINE T_DEDENT maybe_newline { $$ = $3; }
+    maybe_newline maybe_indent if_stmt T_NEWLINE T_DEDENT { $$ = $3; }
+    | maybe_newline maybe_indent while_stmt T_NEWLINE T_DEDENT { $$ = $3; }
+    | maybe_newline maybe_indent for_stmt T_NEWLINE T_DEDENT { $$ = $3; }
+    | maybe_newline maybe_indent funcdef T_NEWLINE T_DEDENT { $$ = $3; }
     ;
 
 expr_stmt:
@@ -145,10 +150,10 @@ expr_stmt:
     ;
 
 flow_stmt:
-    T_BREAK { $$ = criarNoFlow(T_BREAK); }
-    | T_CONTINUE { $$ = criarNoFlow(T_CONTINUE); }
-    | T_PASS { $$ = NULL; } // Pass não gera nó
-    | return_stmt { $$ = $1; }
+    maybe_dedent maybe_newline T_BREAK { $$ = criarNoFlow(T_BREAK); }
+    | maybe_dedent maybe_newline T_CONTINUE { $$ = criarNoFlow(T_CONTINUE); }
+    | maybe_dedent maybe_newline T_PASS { $$ = NULL; } // Pass não gera nó
+    | maybe_dedent maybe_newline return_stmt { $$ = $2; }
     ;
 
 test:
@@ -208,34 +213,33 @@ arglist:
 
 argument: test { $$ = $1; };
 
-
 if_stmt:
     T_IF test T_COLON T_NEWLINE suite %prec T_LOWER_THAN_ELSE { $$ = criarNoIf($2, $5, NULL); }
     | T_IF test T_COLON T_NEWLINE suite T_ELSE suite { $$ = criarNoIf($2, $5, $7); }
     ;
 
-while_stmt: T_WHILE test T_COLON T_NEWLINE suite { $$ = criarNoWhile($2, $5); };
+while_stmt: T_WHILE test T_COLON T_NEWLINE suite T_NEWLINE T_DEDENT maybe_newline { $$ = criarNoWhile($2, $5); };
 
 for_stmt:
-    T_FOR T_IDENTIFIER T_IN test T_COLON T_NEWLINE suite
+    maybe_newline T_FOR T_IDENTIFIER T_IN T_RANGE test T_COLON T_NEWLINE suite
     {
-        if (search(tabela_simbolos_global, $2) == NULL) {
-            insert(tabela_simbolos_global, $2, criarSimbolo($2, TIPO_INT, 0));
+        if (search(tabela_simbolos_global, $3) == NULL) {
+            insert(tabela_simbolos_global, $3, criarSimbolo($3, TIPO_INT, 0));
         }
-        $$ = criarNoFor($2, $4, $7);
-        free($2);
+        $$ = criarNoFor($3, $6, $9);
+        free($3);
     }
     ;
 
 funcdef:
-    T_DEF T_IDENTIFIER T_LPAREN parameters T_RPAREN T_COLON T_NEWLINE suite
+    T_DEF T_IDENTIFIER T_LPAREN parameters T_RPAREN T_COLON T_NEWLINE T_INDENT suite
     {
         if (search(tabela_simbolos_global, $2) != NULL) {
             yyerror("Erro Semântico: Função ou variável com este nome já declarada.");
         } else {
             insert(tabela_simbolos_global, $2, criarSimbolo($2, TIPO_FUNCAO, 1));
         }
-        $$ = criarNoFuncao($2, $4, $8);
+        $$ = criarNoFuncao($2, $4, $9);
         free($2);
     }
     ;
@@ -256,8 +260,9 @@ return_stmt:
     ;
 
 suite:
-    simple_stmt { $$ = $1; }
-    | T_INDENT stmt_list T_DEDENT { $$ = $2; }
+    stmt_list { $$ = $1; }
+    | flow_stmt { $$ = $1; }
+    | maybe_dedent maybe_newline print_stmt { $$ = $2; }
     ;
 
 stmt_list:
