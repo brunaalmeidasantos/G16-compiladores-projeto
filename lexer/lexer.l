@@ -194,7 +194,10 @@ static int first_run = 1;
 "with"                     { print_simple_token("T_WITH"); return T_WITH; }
 "yield"                    { print_simple_token("T_YIELD"); return T_YIELD; }
 
-[0-9]+(\.[0-9]+)?          { yylval.intval = atoi(yytext); 
+[0-9]+\.[0-9]+          { yylval.floatval = atof(yytext); 
+                             print_token("T_FLOAT_NUMBER", yytext); 
+                             return T_FLOAT_NUMBER; }
+[0-9]+                     { yylval.intval = atoi(yytext); 
                              print_token("T_NUMBER", yytext); 
                              return T_NUMBER; }
 [a-zA-Z_][a-zA-Z0-9_]*     { yylval.strval = strdup(yytext); 

@@ -30,6 +30,14 @@ NoAST *criarNoNum(int val) {
     return no;
 }
 
+NoAST *criarNoFloat(float val) {
+    NoAST *no = criarNoBase();
+    no->op = NODO_FLOAT;
+    no->valor_float = val;
+    no->tipo_expressao = TIPO_FLOAT;
+    return no;
+}
+
 NoAST *criarNoId(char *nome) {
     NoAST *no = criarNoBase();
     no->op = NODO_ID;
@@ -161,6 +169,7 @@ const char* tipo_para_string(Tipo tipo) {
         case TIPO_BOOL: return "bool";
         case TIPO_NONE: return "none";
         case TIPO_FUNCAO: return "function";
+        case TIPO_FLOAT: return "float";
         default: return "erro";
     }
 }
@@ -169,6 +178,7 @@ Tipo tipo_from_string(const char* s) {
     if (strcmp(s, "int") == 0) return TIPO_INT;
     if (strcmp(s, "string") == 0) return TIPO_STRING;
     if (strcmp(s, "bool") == 0) return TIPO_BOOL;
+    if (strcmp(s, "float") == 0) return TIPO_FLOAT;
     return TIPO_ERRO;
 }
 
