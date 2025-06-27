@@ -1,6 +1,6 @@
 # G16 - Compilador Python para C
 
-Repositório dedicado ao desenvolvimento do projeto do Grupo 16 para a disciplina Compiladores 1, ministrada pelo professor Sergio Freitas durante o 1º semestre de 2025, na Universidade de Brasília (UnB).
+Repositório dedicado ao desenvolvimento do projeto Compylador do Grupo 16 para a disciplina Compiladores 1, ministrada pelo professor Sergio Freitas durante o 1º semestre de 2025, na Universidade de Brasília (UnB).
 
 ## Equipe
 |Integrante|Matrícula|
@@ -15,7 +15,7 @@ Repositório dedicado ao desenvolvimento do projeto do Grupo 16 para a disciplin
 ---
 ## O projeto
 
-O projeto elaborado por nosso grupo consiste em um **compilador que traduz um subconjunto da linguagem Python para C**. A proposta é permitir que programas escritos em Python, com uma sintaxe e estruturas definidas previamente, possam ser convertidos para código C equivalente, mantendo sua lógica e funcionalidade.
+O projeto elaborado por nosso grupo consiste em um **compilador que traduz um subconjunto da linguagem Python para C**; O intitulamos **Compylador**. A proposta é permitir que programas escritos em Python, com uma sintaxe e estruturas definidas previamente, possam ser convertidos para código C equivalente, mantendo sua lógica e funcionalidade.
 
 O compilador está sendo desenvolvido utilizando as ferramentas **Flex** e **Bison**, e segue as principais etapas de construção de um compilador:
 - **Análise léxica**, responsável por identificar os *tokens* da linguagem;
@@ -51,12 +51,20 @@ O cronograma a seguir apresenta as datas de início e término de cada Sprint, b
 |Sprint 5|05/06 a 18/06|
 |Sprint 6|19/06 a 27/06|
 |**Entrega final do compilador**|27/06|
-|Apresentação final|30/06|
+|Apresentação final - Entrevista|02/07|
 
 ---
 ## Documentação
 
-Toda a documentação referente ao projeto pode ser visualizada na pasta `./docs`.
+Toda a documentação referente ao projeto pode ser visualizada na pasta `./docs`. Os documentos desenvolvidos pela equipe buscam detalhar características do projeto, e incluem:
+
+* Uma visão geral [sobre o projeto](https://github.com/brunaalmeidasantos/G16-compiladores-projeto/blob/main/docs/sobre_o_projeto.md);
+* Detalhes sobre a [gramática](https://github.com/brunaalmeidasantos/G16-compiladores-projeto/blob/main/docs/gramatica.md) do Compylador;
+* O levantamento de [histórias de usuário](https://github.com/brunaalmeidasantos/G16-compiladores-projeto/blob/main/docs/historias_usuario.md) para o projeto;
+* A avaliação de [riscos técnicos]() que podem ocorrer ao longo do desenvolvimento do compilador e;
+* O detalhamento de todas as [Sprints](https://github.com/brunaalmeidasantos/G16-compiladores-projeto/blob/main/docs/sprints.md) concluídas pela equipe.
+
+Além dos documentos mencionados, também foram desenvolvidas **READMEs** individuais para os principais artefatos do projeto.
 
 ---
 ## Como Executar
