@@ -1,5 +1,11 @@
 #include <stdio.h>
+#include<stdlib.h>
+#include<string.h>
 #include "globals.h" // Inclui os protótipos e declarações extern
+
+#include "../ast/ast.h" // Depende da definição da sua AST
+#include "../intermediario/gerador_ci.h"
+#include "../final/codfinal.h"
 
 // =================================================================
 // DEFINIÇÃO DAS VARIÁVEIS GLOBAIS
@@ -42,6 +48,52 @@ int main(int argc, char **argv) {
 
     if (result == 0) {
         printf("\nCompilação bem-sucedida!\n");
+        if (ast_raiz != NULL) {
+            printf("\n=== CÓDIGO INTERMEDIÁRIO ===\n");
+            
+            // Gera o nome do arquivo de saída (.ir = intermediate representation)
+            char nome_arquivo_ci[256];
+            if (argc > 1) {
+                // Remove a extensão do arquivo original e adiciona .ir
+                strcpy(nome_arquivo_ci, argv[1]);
+                char *ponto = strrchr(nome_arquivo_ci, '.');
+                if (ponto) *ponto = '\0';
+                strcat(nome_arquivo_ci, ".ir");
+            } else {
+                strcpy(nome_arquivo_ci, "output.ir");
+            }
+            
+            // Redireciona stdout para o arquivo
+            FILE *arquivo_ci = fopen(nome_arquivo_ci, "w");
+            if (arquivo_ci) {
+                FILE *stdout_original = stdout;
+                stdout = arquivo_ci;
+                
+                gerar_codigo_intermediario(ast_raiz);
+                
+                // Restaura stdout e fecha arquivo
+                stdout = stdout_original;
+                fclose(arquivo_ci);
+                
+                printf("Código intermediário salvo em: %s\n", nome_arquivo_ci);
+                
+                // Também mostra na tela
+                printf("\nConteúdo do código intermediário:\n");
+                gerar_codigo_intermediario(ast_raiz);
+            } else {
+                printf("Erro ao criar arquivo de código intermediário.\n");
+                // Se não conseguir criar arquivo, só mostra na tela
+                gerar_codigo_intermediario(ast_raiz);
+            }
+            
+            printf("=== FIM DO CÓDIGO INTERMEDIÁRIO ===\n");
+
+            printf("FASE 4: Geracao de Codigo Final C a partir do CI...\n");
+            gerar_final_de_ci(nome_arquivo_ci, "saida.c");
+            
+        } else {
+            printf("Aviso: AST não foi gerada.\n");
+        }
     } else {
         printf("\nCompilação falhou com %d erro(s) de sintaxe.\n", result);
     }
@@ -56,3 +108,6 @@ int main(int argc, char **argv) {
 
     return result;
 }
+
+// CODIGO INTERMEDIARIO
+    

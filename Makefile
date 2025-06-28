@@ -10,7 +10,9 @@ PARSER = parser/parser.y
 SRC_FILES = src/Hash.c \
             src/globals.c \
             ast/ast.c \
-            semantico/semantico.c
+            semantico/semantico.c \
+			intermediario/gerador_ci.c  \
+			final/codfinal.c
 
 GENERATED_SRC = lex.yy.c parser.tab.c
 

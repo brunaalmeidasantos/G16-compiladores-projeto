@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "ast.h": "c",
+        "semantico.h": "c",
+        "gerador_ci.h": "c",
+        "codfinal.h": "c"
+    }
+}
