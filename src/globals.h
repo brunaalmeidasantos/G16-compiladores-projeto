@@ -5,6 +5,8 @@
 #include "hash.h"
 #include <stdio.h>
 
+
+
 // =================================================================
 // DECLARAÇÃO EXTERNA DAS VARIÁVEIS GLOBAIS
 // 'extern' diz ao compilador: "esta variável existe, mas

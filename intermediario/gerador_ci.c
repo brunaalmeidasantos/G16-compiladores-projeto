@@ -72,17 +72,29 @@ char* gerar_expressao(NoAST *no) {
             free(operando);
             return temp;
         }
+        
 
         case NODO_CHAMADA_FUNC: {
-            NoAST* args = no->dir;
+            // Primeiro, gera o código para os argumentos e os empilha (simulado com 'param')
+            NoAST* no_arg = no->dir;
             int arg_count = 0;
-            while(args != NULL) {
-                char* arg_val = gerar_expressao(args->dir);
+            while (no_arg != NULL) {
+                char* arg_val;
+                // Se for um nó da lista, o argumento está na direita (dir)
+                if (no_arg->op == NODO_LISTA_ARGS) {
+                    arg_val = gerar_expressao(no_arg->dir);
+                    no_arg = no_arg->esq; // Avança para o resto da lista
+                } else {
+                // Se não for, este é o último (ou único) argumento
+                    arg_val = gerar_expressao(no_arg);
+                    no_arg = NULL; // Fim da lista
+                }
                 printf("param %s\n", arg_val);
                 free(arg_val);
-                args = args->esq;
                 arg_count++;
             }
+
+            // Agora, gera a instrução de chamada
             char* nome_funcao = gerar_expressao(no->esq);
             char* temp = novo_temp();
             printf("%s = call %s, %d\n", temp, nome_funcao, arg_count);
@@ -115,6 +127,50 @@ void gerar_statement(NoAST *no) {
             char* val = gerar_expressao(no->dir);
             printf("%s = %s\n", no->nome, val);
             free(val);
+            break;
+        }
+
+        case NODO_FOR: {
+            // Assumimos a estrutura do seu nó NODO_FOR:
+            // no->nome: a variável do laço (ex: "i")
+            // no->esq:  o iterável, que para range(100) será um NODO_NUM com valor 100
+            // no->dir:  o corpo do laço
+
+            char* var_loop = no->nome;
+            char* rotulo_inicio = novo_rotulo();
+            char* rotulo_fim = novo_rotulo();
+
+            // 1. Inicializa a variável do laço: i = 0
+            printf("%s = 0\n", var_loop);
+
+            // 2. Define o rótulo de início do laço
+            printf("label %s\n", rotulo_inicio);
+
+            // 3. Gera a condição de parada: if (i < limite)
+            char* limite = gerar_expressao(no->esq); // Obtém o "100"
+            char* temp_cond = novo_temp();
+            printf("%s = %s < %s\n", temp_cond, var_loop, limite);
+            printf("if_false %s goto %s\n", temp_cond, rotulo_fim);
+            free(limite);
+            free(temp_cond);
+
+            // 4. Gera o código para o corpo do laço
+            gerar_statement(no->dir);
+
+            // 5. Gera o incremento: i = i + 1
+            char* temp_inc = novo_temp();
+            printf("%s = %s + 1\n", temp_inc, var_loop);
+            printf("%s = %s\n", var_loop, temp_inc);
+            free(temp_inc);
+
+            // 6. Volta para o início para a próxima iteração
+            printf("goto %s\n", rotulo_inicio);
+
+            // 7. Define o rótulo de fim do laço
+            printf("label %s\n", rotulo_fim);
+
+            free(rotulo_inicio);
+            free(rotulo_fim);
             break;
         }
         

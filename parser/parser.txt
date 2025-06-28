@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../src/globals.h"
-#include "semantico/semantico.h"
+#include "../semantico/semantico.h"
 
 int yylex();
 void yyerror(const char *s);
@@ -136,7 +136,7 @@ simple_stmt: small_stmt maybe_newline { $$ = $1; };
 small_stmt:
     maybe_newline maybe_indent expr_stmt { $$ = $3; }
     | maybe_newline maybe_indent print_stmt { $$ = $3; }
-    | maybe_newline maybe_indent flow_stmt { $$ = $3; } // Correto
+    | maybe_newline maybe_indent flow_stmt T_NEWLINE T_DEDENT { $$ = $3; }
     ;
 
 compound_stmt:

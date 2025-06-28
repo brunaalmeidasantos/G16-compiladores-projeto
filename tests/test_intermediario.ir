@@ -1,3 +1,24 @@
 x = 10
 y = 20
+z = 0
+print ""que esse codigo funcione amem""
+i = 0
+label L0
+t0 = i < 100
+if_false t0 goto L1
+t1 = z + i
+z = t1
+t2 = i + 1
+i = t2
+goto L0
+label L1
+label L2
+t3 = x < y
+if_false t3 goto L3
+t4 = x + 1
+x = t4
+goto L2
+label L3
 print y
+print ""resultado do for =""
+print z

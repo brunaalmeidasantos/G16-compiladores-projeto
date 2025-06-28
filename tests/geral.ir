@@ -1,0 +1,84 @@
+print ""--- Iniciando testes do compilador ---""
+print ""--- Teste 1: Variaveis e Aritmetica ---""
+a = 10
+b = 30.500000
+t0 = a + b
+soma = t0
+t1 = b - a
+sub = t1
+t2 = a * 5
+mult = t2
+t3 = b / 2.000000
+div = t3
+print soma
+print sub
+print mult
+print div
+print ""--- Teste 2: Controle de Fluxo (if/else) ---""
+valor = 100
+t4 = valor > 50
+if_false t4 goto L0
+print ""Valor e maior que 50""
+goto L1
+label L0
+print ""Valor nao e maior que 50""
+label L1
+t5 = soma == 40.500000
+if_false t5 goto L2
+print ""A soma esta correta""
+goto L3
+label L2
+print ""A soma esta incorreta""
+label L3
+print ""--- Teste 3: Laco While ---""
+contador_while = 0
+resultado_while = 0
+label L4
+t6 = contador_while < 5
+if_false t6 goto L5
+t7 = resultado_while + contador_while
+resultado_while = t7
+t8 = contador_while + 1
+contador_while = t8
+goto L4
+label L5
+print ""Resultado do while (0+1+2+3+4):""
+print resultado_while
+print ""--- Teste 4: Laco For ---""
+resultado_for = 0
+i = 0
+label L6
+t9 = i < 11
+if_false t9 goto L7
+t10 = resultado_for + i
+resultado_for = t10
+t11 = i + 1
+i = t11
+goto L6
+label L7
+print ""Resultado do for (soma de 0 a 10):""
+print resultado_for
+print ""--- Teste 5: Funcoes ---""
+
+def calcular_potencia:
+res = 1
+i = 0
+label L8
+t12 = i < expoente
+if_false t12 goto L9
+t13 = res * base
+res = t13
+t14 = i + 1
+i = t14
+goto L8
+label L9
+return res
+end_def
+
+param 8
+param 2
+t15 = call calcular_potencia, 2
+pot = t15
+print ""Resultado da funcao potencia (2^8):""
+print pot
+print ""--- Fim dos testes ---""
