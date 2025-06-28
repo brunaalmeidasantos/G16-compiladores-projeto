@@ -7,21 +7,28 @@ LDFLAGS = -lfl
 LEXER = lexer/lexer.l
 PARSER = parser/parser.y
 
+# Lista de arquivos .c
 SRC_FILES = src/Hash.c \
             src/globals.c \
             ast/ast.c \
             semantico/semantico.c \
-			intermediario/gerador_ci.c  \
-			final/codfinal.c
+            intermediario/gerador_ci.c  \
+            final/codfinal.c
 
+# Arquivos gerados pelo Flex/Bison
 GENERATED_SRC = lex.yy.c parser.tab.c
+
+# === MUDANÇA 1: Crie uma variável para os cabeçalhos importantes ===
+HEADERS = semantico/semantico.h ast/ast.h src/globals.h src/hash.h
 
 all: $(TARGET)
 
-$(TARGET): $(SRC_FILES) $(GENERATED_SRC)
+# === MUDANÇA 2: Adicione $(HEADERS) às dependências do alvo principal ===
+$(TARGET): $(SRC_FILES) $(GENERATED_SRC) $(HEADERS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(GENERATED_SRC) $(SRC_FILES) $(LDFLAGS)
 
-parser.tab.c parser.tab.h: $(PARSER)
+# === MUDANÇA 3: Adicione a dependência do cabeçalho semântico aqui ===
+parser.tab.c parser.tab.h: $(PARSER) semantico/semantico.h
 	bison -d $(PARSER)
 
 lex.yy.c: $(LEXER) parser.tab.h

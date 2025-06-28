@@ -7,6 +7,7 @@ typedef enum {
     TIPO_BOOL,
     TIPO_NONE,
     TIPO_ERRO,
+    TIPO_INDEFINIDO,
     TIPO_FUNCAO,
     TIPO_FLOAT
 } Tipo;
@@ -90,6 +91,7 @@ typedef struct {
     char* nome;
     Tipo tipo;
     int is_funcao; // 0 para variável, 1 para função
+    Tipo tipo_retorno;
 } Simbolo;
 
 Simbolo* criarSimbolo(const char* nome, Tipo tipo, int is_funcao);

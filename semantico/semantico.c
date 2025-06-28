@@ -6,6 +6,7 @@
 static void visitar_no(NoAST* no, HashTable* escopo, Simbolo* funcao_atual, int dentro_de_loop);
 static void visitar_lista_parametros(NoAST* no, HashTable* escopo_funcao);
 
+
 void analise_semantica(NoAST* raiz, HashTable* tabela_global) {
     if (!raiz) return;
     visitar_no(raiz, tabela_global, NULL, 0);
@@ -169,35 +170,87 @@ static void visitar_no(NoAST* no, HashTable* escopo, Simbolo* funcao_atual, int 
         }
 
         case NODO_FUNC_DEF: {
-            Simbolo* simbolo_funcao = search(escopo, no->nome);
-            HashTable* escopo_funcao = create_table();
-            if (no->esq) {
-                visitar_lista_parametros(no->esq, escopo_funcao);
-            }
-            visitar_no(no->dir, escopo_funcao, simbolo_funcao, 0);
-            free_table(escopo_funcao);
-            no->tipo_expressao = TIPO_NONE;
-            break;
+    Simbolo* simbolo_funcao = search(escopo, no->nome);
+    
+    // 1. Inicializa o tipo de retorno como indefinido antes de analisar o corpo
+    simbolo_funcao->tipo_retorno = TIPO_INDEFINIDO;
+
+    HashTable* escopo_funcao = create_table();
+    if (no->esq) {
+        visitar_lista_parametros(no->esq, escopo_funcao);
+    }
+
+    // 2. Visita o corpo, passando o símbolo da função atual
+    visitar_no(no->dir, escopo_funcao, simbolo_funcao, 0);
+
+    // 3. Após analisar, se nenhum 'return' foi encontrado, o tipo de retorno é 'none'
+    if (simbolo_funcao->tipo_retorno == TIPO_INDEFINIDO) {
+        simbolo_funcao->tipo_retorno = TIPO_NONE;
+    }
+
+    free_table(escopo_funcao);
+    no->tipo_expressao = TIPO_NONE;
+    break;
+}
+
+case NODO_RETURN:
+    if (funcao_atual == NULL) {
+        erro_semantico("Instrução 'return' fora de uma função.", "");
+    }
+
+    Tipo tipo_retorno_encontrado = TIPO_NONE;
+    if (no->esq) {
+        visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
+        tipo_retorno_encontrado = no->esq->tipo_expressao;
+    }
+
+    // 1. Verifica se é o primeiro 'return' encontrado nesta função
+    if (funcao_atual->tipo_retorno == TIPO_INDEFINIDO) {
+        // 2. Se for, define o tipo de retorno da função com o tipo da expressão
+        funcao_atual->tipo_retorno = tipo_retorno_encontrado;
+    } else {
+        // 3. Se um tipo de retorno já foi definido, verifica se são compatíveis
+        if (funcao_atual->tipo_retorno != tipo_retorno_encontrado) {
+            erro_semantico("Função com múltiplos tipos de retorno incompatíveis", funcao_atual->nome);
         }
-        
-        case NODO_RETURN:
-            if (funcao_atual == NULL) erro_semantico("Instrução 'return' fora de uma função.", "");
-            if (no->esq) {
-                visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
-            }
-            no->tipo_expressao = TIPO_NONE;
-            break;
+    }
+
+    no->tipo_expressao = TIPO_NONE;
+    break;
             
         case OP_BREAK: case OP_CONTINUE:
             if (!dentro_de_loop) erro_semantico("Instrução 'break' ou 'continue' fora de um laço.", "");
             break;
 
-        case NODO_CHAMADA_FUNC:
-        case NODO_LISTA_ARGS:
-            visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
-            visitar_no(no->dir, escopo, funcao_atual, dentro_de_loop);
-            break;
+        case NODO_CHAMADA_FUNC: {
+    // O filho da esquerda (no->esq) é o NODO_ID com o nome da função
+    visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
 
+    // Verifica se o que está sendo chamado é realmente uma função
+    Simbolo* simbolo_funcao = search(escopo, no->esq->nome);
+    if (simbolo_funcao == NULL) {
+        // Este erro já deve ser pego pelo NODO_ID, mas é uma boa verificação
+        erro_semantico("Função não declarada", no->esq->nome);
+    }
+    if (simbolo_funcao->tipo != TIPO_FUNCAO) {
+        erro_semantico("Tentativa de chamar uma variável que não é uma função", no->esq->nome);
+    }
+    
+    // (Futuramente, você analisaria os argumentos aqui: visitar_no(no->dir, ...))
+    visitar_no(no->dir, escopo, funcao_atual, dentro_de_loop);
+
+
+    // O tipo desta expressão de chamada é o tipo de retorno armazenado no símbolo da função
+    no->tipo_expressao = simbolo_funcao->tipo_retorno;
+    break;
+}
+
+// O NODO_LISTA_ARGS pode continuar como está, pois os argumentos são
+// visitados pela chamada do NODO_CHAMADA_FUNC
+case NODO_LISTA_ARGS:
+    visitar_no(no->esq, escopo, funcao_atual, dentro_de_loop);
+    visitar_no(no->dir, escopo, funcao_atual, dentro_de_loop);
+    break;
         default:
             fprintf(stderr, "Aviso: Nó do tipo %d não tratado pelo analisador semântico.\n", no->op);
             break;

@@ -90,6 +90,7 @@ int main(int argc, char **argv) {
 
             printf("FASE 4: Geracao de Codigo Final C a partir do CI...\n");
             gerar_final_de_ci(nome_arquivo_ci, "saida.c");
+            printf("Codigo final gerado com sucesso");
             
         } else {
             printf("Aviso: AST não foi gerada.\n");
