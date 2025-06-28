@@ -3,86 +3,68 @@
 #include <string.h>
 #include "hash.h"
 
-unsigned int hash(const char *key) {
-    unsigned int hash = 5381;
-    while (*key)
-        hash = ((hash << 5) + hash) + (unsigned char)(*key++);
-    return hash % TABLE_SIZE;
-}
+#define TABLE_SIZE 100
 
-HashTable *create_table() {
-    HashTable *table = malloc(sizeof(HashTable));
-    if (!table) return NULL;
-    for (int i = 0; i < TABLE_SIZE; i++)
-        table->buckets[i] = NULL;
-    return table;
-}
-
-void insert(HashTable *table, const char *key, const char *value) {
-    unsigned int index = hash(key);
-    HashItem *new_item = malloc(sizeof(HashItem));
-    new_item->key = strdup(key);
-    new_item->value = strdup(value);
-    new_item->next = table->buckets[index];
-    table->buckets[index] = new_item;
-}
-
-char *search(HashTable *table, const char *key) {
-    unsigned int index = hash(key);
-    HashItem *item = table->buckets[index];
-    while (item) {
-        if (strcmp(item->key, key) == 0)
-            return item->value;
-        item = item->next;
+// Função de hash simples
+unsigned int hash(const char *key, int table_size) {
+    unsigned long int hashval = 0;
+    int i = 0;
+    while (hashval < (unsigned long int)-1 && i < strlen(key)) {
+        hashval = hashval << 8;
+        hashval += key[i];
+        i++;
     }
-    return NULL;
+    return hashval % table_size;
 }
 
-void delete_key(HashTable *table, const char *key) {
-    unsigned int index = hash(key);
-    HashItem *item = table->buckets[index];
-    HashItem *prev = NULL;
+HashTable* create_table(void) {
+    HashTable *hashtable = malloc(sizeof(HashTable));
+    hashtable->size = TABLE_SIZE;
+    hashtable->table = calloc(TABLE_SIZE, sizeof(HashNode*));
+    for (int i = 0; i < TABLE_SIZE; i++) {
+        hashtable->table[i] = NULL;
+    }
+    return hashtable;
+}
 
-    while (item) {
-        if (strcmp(item->key, key) == 0) {
-            if (prev)
-                prev->next = item->next;
-            else
-                table->buckets[index] = item->next;
-            free(item->key);
-            free(item->value);
-            free(item);
-            return;
+// CORREÇÃO: A função insert foi atualizada para aceitar Simbolo*
+void insert(HashTable *table, const char *key, Simbolo *value) {
+    unsigned int pos = hash(key, table->size);
+    HashNode *list = table->table[pos];
+    HashNode *newNode = malloc(sizeof(HashNode));
+    newNode->key = strdup(key);
+    newNode->value = value; // Armazena o ponteiro diretamente
+    newNode->next = list;
+    table->table[pos] = newNode;
+}
+
+// CORREÇÃO: A função search foi atualizada para retornar Simbolo*
+Simbolo* search(HashTable *table, const char *key) {
+    unsigned int pos = hash(key, table->size);
+    HashNode *list = table->table[pos];
+    while (list != NULL) {
+        if (strcmp(list->key, key) == 0) {
+            return list->value; // Retorna o ponteiro para o símbolo
         }
-        prev = item;
-        item = item->next;
+        list = list->next;
     }
+    return NULL; // Não encontrado
 }
 
 void free_table(HashTable *table) {
-    for (int i = 0; i < TABLE_SIZE; i++) {
-        HashItem *item = table->buckets[i];
-        while (item) {
-            HashItem *next = item->next;
-            free(item->key);
-            free(item->value);
-            free(item);
-            item = next;
+    if (!table) return;
+    for (int i = 0; i < table->size; i++) {
+        HashNode *list = table->table[i];
+        while (list != NULL) {
+            HashNode *temp = list;
+            list = list->next;
+            free(temp->key);
+            // Liberar o símbolo também
+            free(temp->value->nome);
+            free(temp->value);
+            free(temp);
         }
     }
+    free(table->table);
     free(table);
-}
-
-void print_table(HashTable *table) {
-    for (int i = 0; i < TABLE_SIZE; i++) {
-        HashItem *item = table->buckets[i];
-        if (item) {
-            printf("Bucket[%d]: ", i);
-            while (item) {
-                printf("(%s: %s) -> ", item->key, item->value);
-                item = item->next;
-            }
-            printf("NULL\n");
-        }
-    }
 }

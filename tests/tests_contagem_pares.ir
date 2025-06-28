@@ -1,0 +1,5 @@
+count = 0
+t0 = count + 1
+t1 = (null) ? t0
+t2 = 11 ? t1
+print count

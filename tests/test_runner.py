@@ -14,6 +14,7 @@ testes_sintatico = [
     ("tests_sint_ok.py", False),
     ("tests_sint_erro.py", True),
     ("tests_sint_extras.py", False),
+    ("tests_contagem_pares.py", False),
     ("tests_semantico_erro.py", True),
     ("tests_semantico_ok.py", False),
 ]
@@ -58,7 +59,7 @@ def main():
     print("\n🧪 Iniciando testes do analisador léxico...\n")
 
     if not os.path.exists(lex):
-        print("❌ Analisador léxico não encontrado. Compile com `make` ou corrija o caminho para o arquivo 'lexer'.")
+        print("⚠️  Analisador léxico não pode ser testado isoladamente no momento.")
     else:
         for nome_arquivo, espera_erro in testes_lexico:
             testar(nome_arquivo, espera_erro)
