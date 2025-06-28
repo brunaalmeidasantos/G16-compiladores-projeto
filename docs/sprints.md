@@ -189,15 +189,16 @@ Configurar o ambiente de trabalho de todos os membros da equipe, além de inicia
 |#41|Criar gerador de código intermediário|Matheus Perillo e Victor|
 |#42|Integrar a AST ao projeto|Italo e Matheus Barros|
 |#43|Introduzir e testar otimizações no código intermediário|Italo|
-|#44|Implementar a geração de código final||
+|#44|Implementar a geração de código final|Victor|
 |#45|Léxico: README.md|Ana Luiza|
 |#46|Sintático: README.md|Ana Luiza|
 |#47|Semântico: README.md|Bruna|
 |#48|AST: README.md|Matheus Barros|
-|#49|Documentar redução de escopo||
+|#49|Documentar redução de escopo|Ana Luiza|
 
 
 ### O que foi concluído nessa Sprint?
 
-<p align = "justify"></p>
+<p align = "justify">O analisador semântico foi finalizado, e a AST foi integrada à ele. Também foram desenvolvidos os módulos de geração de código intermediário e final. Em relação à documentação, foram adicionados READMEs aos principais artefatos do projeto.</p>
 
+<p align = "justify">Dessa forma, ao fim desta última Sprint do projeto, o compilador foi finalizado. A entrevista, que configura como apresentação final do projeto, ocorre em 02 de julho de 2025.</p>

@@ -1,6 +1,6 @@
-# G16 - Compilador Python para C
+# Grupo 16 - Compylador - Compilador Python para C
 
-Repositório dedicado ao desenvolvimento do projeto Compylador do Grupo 16 para a disciplina Compiladores 1, ministrada pelo professor Sergio Freitas durante o 1º semestre de 2025, na Universidade de Brasília (UnB).
+<p align = "justify">Repositório dedicado ao desenvolvimento do projeto Compylador do Grupo 16 para a disciplina Compiladores 1, ministrada pelo professor Sergio Freitas durante o 1º semestre de 2025, na Universidade de Brasília (UnB).</p>
 
 ## Equipe
 |Integrante|Matrícula|
@@ -15,7 +15,7 @@ Repositório dedicado ao desenvolvimento do projeto Compylador do Grupo 16 para 
 ---
 ## O projeto
 
-O projeto elaborado por nosso grupo consiste em um **compilador que traduz um subconjunto da linguagem Python para C**; O intitulamos **Compylador**. A proposta é permitir que programas escritos em Python, com uma sintaxe e estruturas definidas previamente, possam ser convertidos para código C equivalente, mantendo sua lógica e funcionalidade.
+<p align = "justify">O projeto elaborado por nosso grupo consiste em um <b>compilador que traduz um subconjunto da linguagem Python para C</b>; O intitulamos <b>Compylador</b>. A proposta é permitir que programas escritos em Python, com uma sintaxe e estruturas definidas previamente, possam ser convertidos para código C equivalente, mantendo sua lógica e funcionalidade.</p>
 
 O compilador está sendo desenvolvido utilizando as ferramentas **Flex** e **Bison**, e segue as principais etapas de construção de um compilador:
 - **Análise léxica**, responsável por identificar os *tokens* da linguagem;
@@ -25,18 +25,18 @@ O compilador está sendo desenvolvido utilizando as ferramentas **Flex** e **Bis
 
 ---
 ## Escopo e Limitações
-É importante ressaltar que o presente compilador focará na tradução de um subconjunto específico da linguagem Python. Dentre as funcionalidades **não** contempladas neste projeto, destaca-se o tratamento de **orientação a objetos**. Construções como classes, objetos e herança não serão processadas pelo compilador.
+<p align = "justify">É importante ressaltar que o presente compilador focará na tradução de um subconjunto específico da linguagem Python. Dentre as funcionalidades <b>não</b> contempladas neste projeto, destaca-se o tratamento de <b>orientação a objetos</b>. Construções como classes, objetos e herança não serão processadas pelo compilador.</p>
 
-Além disso, múltiplos níveis de indentação também não serão compilados. A adição dessa limitação se deu a partir da necessidade de reduzir o escopo do projeto para se adequar às entregas exigidas pela disciplina Compiladores 1, da Universidade de Brasília. Isso torna viável a entrega de um compilador básico funcional como trabalho final.
+<p align = "justify">Além disso, múltiplos níveis de indentação também não serão compilados. A adição dessa limitação se deu a partir da necessidade de reduzir o escopo do projeto para se adequar às entregas exigidas pela disciplina Compiladores 1, da Universidade de Brasília. Isso torna viável a entrega de um compilador básico funcional como trabalho final.</p>
 
 ---
 ## Organização e Cronograma do Projeto
 
-A equipe está utilizando as metodologias ágeis **Scrum** e **Kanban** para organizar e acompanhar o desenvolvimento do projeto. As atividades são gerenciadas por meio de um quadro Kanban, que permite o acompanhamento contínuo das tarefas a fazer, em andamento e concluídas a cada Sprint. O projeto está dividido em **5 sprints**, cada uma com duração média de **duas semanas**; As Sprints podem ser visualizadas na aba _Projects_ do repositório.
+<p align = "justify">A equipe está utilizando as metodologias ágeis <b>Scrum</b> e <b>Kanban</b> para organizar e acompanhar o desenvolvimento do projeto. As atividades são gerenciadas por meio de um quadro Kanban, que permite o acompanhamento contínuo das tarefas a fazer, em andamento e concluídas a cada Sprint. O projeto está dividido em <b>5 sprints</b>, cada uma com duração média de <b>duas semanas</b>; As Sprints podem ser visualizadas na aba _Projects_ do repositório.</p>
 
-Além da entrega final, o cronograma prevê **dois pontos de controle** intermediários, nos quais o progresso do projeto é apresentado e avaliado.
+<p align = "justify">Além da entrega final, o cronograma prevê <b>dois pontos de controle</b> intermediários, nos quais o progresso do projeto é apresentado e avaliado.</p>
 
-O cronograma a seguir apresenta as datas de início e término de cada Sprint, bem como as datas das entregas do projeto.
+<p align = "justify">O cronograma a seguir apresenta as datas de início e término de cada Sprint, bem como as datas das entregas do projeto.</p>
 
 |Evento|Data|
 |------|----|
