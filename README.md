@@ -85,15 +85,15 @@ Os seguintes comandos `make` estão disponíveis:
 
 * **Compilar e executar o compilador:**
     ```bash
-    make run
+    ./compilador tests/test_intermediario.py
     ```
-    Este comando primeiro executa as etapas de compilação (equivalente a `make all`) e, em seguida, roda o `./compilador`.
+    Este comando vai gerar o arquivo de saída do compilador, chamado saida.c.
 
-* **Compilar e rodar os testes:**
+<!-- * **Compilar e rodar os testes:**
     ```bash
     make test
     ```
-    Este comando compila o projeto e depois executa o script de testes `python3 ./tests/test_runner.py`.
+    Este comando compila o projeto e depois executa o script de testes `python3 ./tests/test_runner.py`. -->
 
 * **Limpar arquivos gerados:**
     ```bash
